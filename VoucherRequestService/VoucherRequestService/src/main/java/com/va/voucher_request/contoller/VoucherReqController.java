@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +39,6 @@ public class VoucherReqController {
 	@Autowired
 	private VoucherReqServiceImpl vservice;
 	@Autowired
-	
 	
 	EmailRequestImpl impl;
  
@@ -119,5 +119,18 @@ public class VoucherReqController {
     {
     	List<VoucherRequest> list = vservice.getAllCompletedVoucherRequest();
     	return new ResponseEntity<List<VoucherRequest>>(list,HttpStatus.OK);
+    }
+    
+    @GetMapping("/sendPendingEmails")
+    public ResponseEntity<List<String>> pendingEmails() {
+    	List<String> pendingEmails = vservice.pendingEmails();
+    	
+    	
+    	return new ResponseEntity<List<String>>(pendingEmails, HttpStatus.OK);
+    }
+    @GetMapping("/pendingResultRequests")
+    public ResponseEntity<List<VoucherRequest>> pendingRequests() {
+    	List<VoucherRequest> pendingRequests = vservice.pendingRequests();
+    	return new ResponseEntity<List<VoucherRequest>>(pendingRequests, HttpStatus.OK);
     }
 }
