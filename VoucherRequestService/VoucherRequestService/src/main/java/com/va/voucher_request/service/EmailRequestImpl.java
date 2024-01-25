@@ -12,7 +12,7 @@ public class EmailRequestImpl {
 	@Autowired
 	JavaMailSender javaMailSender;
  
-	@Value("${username}")
+	@Value("VOUCHER CONNECT<${username}>")
 	String username;
  
 	public String sendEmail(String toMail, String subject, String body) {

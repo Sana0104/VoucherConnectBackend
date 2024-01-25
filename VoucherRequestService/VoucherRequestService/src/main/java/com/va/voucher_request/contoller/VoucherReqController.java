@@ -88,7 +88,7 @@ public class VoucherReqController {
     	        "\r\n Thanks and Regards,"
     	        + "\r\nTulsi Rao"
 ;
-    	impl.sendEmail(emailId, "AWS voucher", msg);
+    	impl.sendEmail(emailId, voucher.getCloudPlatform()+ " Voucher ", msg);
     	return new ResponseEntity<>(request, HttpStatus.OK);
     			
     }
