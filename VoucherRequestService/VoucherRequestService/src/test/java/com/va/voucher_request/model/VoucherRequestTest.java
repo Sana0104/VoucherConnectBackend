@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
     @Test
     void testConstructorAndGetters() {
-        VoucherRequest voucherRequest = new VoucherRequest("1", "John Doe", "john@example.com", "AWS", "AWS Certified Developer", 80, "scoreImage", "V123", LocalDate.now(), LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2), "Pass");
+        VoucherRequest voucherRequest = new VoucherRequest("1", "John Doe", "john@example.com", "AWS", "AWS Certified Developer", 80, "scoreImage", "V123", LocalDate.now(), LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2), "Pass", "certificateImage");
 
         assertEquals("1", voucherRequest.getId());
         assertEquals("John Doe", voucherRequest.getCandidateName());
