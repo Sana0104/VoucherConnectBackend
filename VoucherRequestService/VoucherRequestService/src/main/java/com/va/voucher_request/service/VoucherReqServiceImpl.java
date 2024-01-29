@@ -43,7 +43,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	
 	@Autowired
 	EmailRequestImpl impl;
-
+//image get 
 	@Override
 	public VoucherRequest requestVoucher(VoucherRequestDto request, MultipartFile file, String path)
 	        throws ScoreNotValidException, ResourceAlreadyExistException, NotAnImageFileException, IOException {
