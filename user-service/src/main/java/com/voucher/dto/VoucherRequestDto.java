@@ -23,5 +23,6 @@ public class VoucherRequestDto {
 	private String doSelectScoreImage;
 
 	private LocalDate plannedExamDate;
+	
 
 }
