@@ -15,7 +15,7 @@ import com.voucher.dto.VoucherRequest;
 import com.voucher.dto.VoucherRequestDto;
 import com.voucher.errordecoder.CustomErrorDecoder;
 
-@FeignClient(url = "http://localhost:8081/requests",name = "voucher-request",configuration = CustomErrorDecoder.class)
+@FeignClient(url = "http://localhost:8085/requests",name = "voucher-request",configuration = CustomErrorDecoder.class)
 public interface VoucherRequestClient {
 	
 	@PostMapping("/voucher")
@@ -51,5 +51,8 @@ public interface VoucherRequestClient {
     
     @GetMapping("/pendingResultRequests")
     public ResponseEntity<List<VoucherRequest>> pendingRequests() ;
+    
+    @GetMapping("/getScoreURL/{voucherRequestId}")
+    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String voucherRequestId);
 
 }

@@ -37,7 +37,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	@Autowired
 	private VoucherRequestRepository vrepo;
 	
-	//voucherservice client
+	
 	@Autowired
 	VoucherClient voucherClient;
 	
@@ -309,5 +309,10 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	}
 		return pendingRequests;
 }
+
+
+	public Optional<VoucherRequest> findByRequestId(String voucherRequestId) {
+		return vrepo.findById(voucherRequestId);
+	}
 
 }
