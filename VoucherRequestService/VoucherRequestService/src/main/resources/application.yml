@@ -6,7 +6,7 @@ spring:
       uri: mongodb://localhost:27017
       database: vouchers
   application:
-    name: voucher-request
+    name: VOUCHER-REQUEST
   mail:
     host: smtp.gmail.com
     port: 587
@@ -18,4 +18,10 @@ spring:
           auth: true
           starttls:
             enable: true
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    hostname: localhost
  
