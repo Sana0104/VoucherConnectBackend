@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import com.voucherservice.exception.NoVoucherPresentException;
 
-public class NoVoucherPresentExceptionTest {
+ class NoVoucherPresentExceptionTest {
 
     @Test
-    public void testDefaultConstructor() {
+     void testDefaultConstructor() {
         // When
         NoVoucherPresentException exception = new NoVoucherPresentException();
 

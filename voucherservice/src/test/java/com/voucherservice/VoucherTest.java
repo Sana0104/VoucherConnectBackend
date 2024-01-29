@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 
 import com.voucherservice.entity.Voucher;
 
-    public class VoucherTest {
+     class VoucherTest {
 
         @Test
-        public void testParameterizedConstructor() {
+         void testParameterizedConstructor() {
             LocalDate issuedDate = LocalDate.now();
             LocalDate expiryDate = LocalDate.now().plusMonths(1);
 
@@ -29,7 +29,7 @@ import com.voucherservice.entity.Voucher;
         }
 
         @Test
-        public void testEqualsAndHashCode() {
+         void testEqualsAndHashCode() {
             LocalDate issuedDate = LocalDate.now();
             LocalDate expiryDate = LocalDate.now().plusMonths(1);
 
@@ -47,7 +47,7 @@ import com.voucherservice.entity.Voucher;
         }
 
         @Test
-        public void testSetterAndGetters() {
+         void testSetterAndGetters() {
             Voucher voucher = new Voucher();
             LocalDate newIssuedDate = LocalDate.now();
             LocalDate newExpiryDate = LocalDate.now().plusMonths(2);
@@ -68,7 +68,7 @@ import com.voucherservice.entity.Voucher;
         }
 
         @Test
-        public void testToString() {
+         void testToString() {
             LocalDate issuedDate = LocalDate.now();
             LocalDate expiryDate = LocalDate.now().plusMonths(1);
 

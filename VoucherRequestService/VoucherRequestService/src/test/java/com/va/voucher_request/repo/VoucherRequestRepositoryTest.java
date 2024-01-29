@@ -1,10 +1,7 @@
 package com.va.voucher_request.repo;
 
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -18,7 +15,7 @@ import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.service.VoucherReqServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class VoucherRequestRepositoryTest {
+ class VoucherRequestRepositoryTest {
 	
 	 @Mock
 	  private VoucherRequestRepository voucherRequestRepository;

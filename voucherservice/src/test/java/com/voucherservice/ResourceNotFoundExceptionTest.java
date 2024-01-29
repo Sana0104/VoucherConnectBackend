@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import com.voucherservice.exception.ResourceNotFoundException;
 
-public class ResourceNotFoundExceptionTest {
+ class ResourceNotFoundExceptionTest {
 
     @Test
-    public void testDefaultConstructor() {
+     void testDefaultConstructor() {
         // When
         ResourceNotFoundException exception = new ResourceNotFoundException(null);
 
@@ -18,7 +18,7 @@ public class ResourceNotFoundExceptionTest {
     }
 
     @Test
-    public void testConstructorWithMessage() {
+     void testConstructorWithMessage() {
         // Given
         String errorMessage = "Resource not found";
 
@@ -29,5 +29,4 @@ public class ResourceNotFoundExceptionTest {
         assertEquals(errorMessage, exception.getMessage());
     }
 
-    // Add more test cases as needed
 }

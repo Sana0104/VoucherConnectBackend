@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import com.voucherservice.exceptionhandler.ExceptionResponse;
 
-public class ExceptionResponseTest {
+ class ExceptionResponseTest {
 
     @Test
-    public void testCreateExceptionResponse() {
+     void testCreateExceptionResponse() {
         LocalDate timestamp = LocalDate.now();
         String message = "Test Message";
         String details = "Test Details";
@@ -26,7 +26,7 @@ public class ExceptionResponseTest {
     }
 
     @Test
-    public void testDefaultConstructor() {
+     void testDefaultConstructor() {
         ExceptionResponse exceptionResponse = new ExceptionResponse();
 
         assertThat(exceptionResponse).isNotNull();
@@ -37,7 +37,7 @@ public class ExceptionResponseTest {
     }
 
     @Test
-    public void testSetters() {
+     void testSetters() {
         ExceptionResponse exceptionResponse = new ExceptionResponse();
 
         LocalDate timestamp = LocalDate.now();

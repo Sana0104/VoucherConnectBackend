@@ -1,14 +1,43 @@
 package com.va.voucher_request;
  
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.dto.Voucher;
+import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
+import com.va.voucher_request.exceptions.NotAnImageFileException;
 import com.va.voucher_request.exceptions.NotFoundException;
 import com.va.voucher_request.exceptions.ParticularVoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.ResourceAlreadyExistException;
@@ -18,18 +47,7 @@ import com.va.voucher_request.exceptions.VoucherNotFoundException;
 import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
 import com.va.voucher_request.repo.VoucherRequestRepository;
-import com.va.voucher_request.service.VoucherReqService;
 import com.va.voucher_request.service.VoucherReqServiceImpl;
- 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import java.lang.reflect.Field;
  
 
  
@@ -50,30 +68,87 @@ class VoucherServiceTests {
     void testRequestVoucherWithInvalidScore() {
         VoucherRequestDto requestDto = new VoucherRequestDto();
         requestDto.setDoSelectScore(75);
-        assertThrows(ScoreNotValidException.class, () -> voucherService.requestVoucher(requestDto));
+        assertThrows(ScoreNotValidException.class, () -> voucherService.requestVoucher(requestDto, null, null));
         verify(voucherRepository, never()).save(any(VoucherRequest.class));
     }
  
     @Test
-    void testRequestVoucherSuccessful() throws ScoreNotValidException, ResourceAlreadyExistException {
+    void testRequestVoucherSuccessful() throws ScoreNotValidException, ResourceAlreadyExistException, NotAnImageFileException, IOException {
         // Arrange
         VoucherRequestDto requestDto = new VoucherRequestDto();
         requestDto.setDoSelectScore(85);
         requestDto.setCandidateEmail("s.k@example.com");
         requestDto.setCloudExam("AWS Certified Solutions Architect");
 
-        when(voucherRepository.findByCandidateEmailAndCloudExam("s.k@example.com", "AWS Certified Solutions Architect"))
-                .thenReturn(Optional.empty());
+        // Mock MultipartFile
+        MultipartFile mockFile = mock(MultipartFile.class);
+        when(mockFile.getOriginalFilename()).thenReturn("example.jpg"); // Set the desired filename
+        when(mockFile.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0])); // Provide a valid InputStream
+
+        when(voucherRepository.existsByCloudExamAndCandidateEmail(anyString(), anyString())).thenReturn(false);
 
         // Act
-        VoucherRequest result = voucherService.requestVoucher(requestDto);
+        VoucherRequest result = voucherService.requestVoucher(requestDto, mockFile, "Images/");
 
         // Assert
         assertNotNull(result);
         assertEquals("Pending", result.getExamResult());
-       
 
+        //assertions
+        assertNotNull(result.getDoSelectScoreImage());
+        assertEquals(requestDto.getCandidateEmail(), result.getCandidateEmail());
+        assertEquals(requestDto.getCloudExam(), result.getCloudExam());
     }
+
+    @Test
+    void testRequestVoucher_ResourceAlreadyExistException() {
+        // Create a mock VoucherRequestDto, MultipartFile, and path
+        VoucherRequestDto requestDto = new VoucherRequestDto();
+        // Set properties on requestDto as needed
+        requestDto.setDoSelectScore(85);
+        requestDto.setCandidateEmail("s.k@example.com");
+        requestDto.setCloudExam("AWS Certified Solutions Architect");
+
+        MockMultipartFile mockFile = new MockMultipartFile(
+            "file", "filename.txt", "text/plain", "Mock file content".getBytes()
+        );
+
+        String mockPath = "/mock/path"; // Provide a mock path
+
+        // Mocking the existsByCloudExamAndCandidateEmail method to return true
+        when(voucherRepository.existsByCloudExamAndCandidateEmail(anyString(), anyString())).thenReturn(true);
+
+        // Define the executable code that is expected to throw ResourceAlreadyExistException
+        Executable executable = () -> voucherService.requestVoucher(requestDto, mockFile, mockPath);
+
+        // Verify that the exception is thrown
+        assertThrows(ResourceAlreadyExistException.class, executable);
+    }
+
+    @Test
+    void testRequestVoucher_NotAnImageFileException() {
+        // Create a mock VoucherRequestDto, MultipartFile, and path
+        VoucherRequestDto requestDto = new VoucherRequestDto();
+        // Set properties on requestDto as needed
+        requestDto.setDoSelectScore(85);
+        requestDto.setCandidateEmail("s.k@example.com");
+        requestDto.setCloudExam("AWS Certified Solutions Architect");
+        MockMultipartFile mockFile = new MockMultipartFile(
+            "file", "filename.txt", "text/plain", "Mock file content".getBytes()
+        );
+
+        String mockPath = "/mock/path"; // Provide a mock path
+
+        // Mocking the existsByCloudExamAndCandidateEmail method to return false
+        when(voucherRepository.existsByCloudExamAndCandidateEmail(anyString(), anyString())).thenReturn(false);
+
+        // Define the executable code that is expected to throw NotAnImageFileException
+        Executable executable = () -> voucherService.requestVoucher(requestDto, mockFile, mockPath);
+
+        // Verify that the exception is thrown
+        assertThrows(NotAnImageFileException.class, executable);
+    }
+
 
  
     @Test
@@ -92,7 +167,7 @@ class VoucherServiceTests {
         requestDto.setDoSelectScore(75); // Score less than 80
 
        
-        assertThrows(ScoreNotValidException.class, () -> voucherService.requestVoucher(requestDto));
+        assertThrows(ScoreNotValidException.class, () -> voucherService.requestVoucher(requestDto, null, null));
         verify(voucherRepository, never()).save(any());
     }
     
@@ -104,6 +179,7 @@ class VoucherServiceTests {
  
         VoucherRequest existingVoucherRequest = new VoucherRequest();
         existingVoucherRequest.setVoucherCode(voucherCode);
+        
  
         when(voucherRepository.findByVoucherCode(voucherCode)).thenReturn(existingVoucherRequest);
  
@@ -224,9 +300,56 @@ class VoucherServiceTests {
         doThrow(RuntimeException.class).when(voucherRepository).save(any(VoucherRequest.class));
 
         assertThrows(RuntimeException.class, () -> {
-            voucherService.updateExamDate(voucherCode, newExamDate);
-        });
+            voucherService.updateExamDate(voucherCode, newExamDate);});
     }
+    
+    @Test
+    void testGetAllCompletedVoucherRequest_NoCompletedRequest() {
+        // Arrange
+        VoucherRequestRepository vrepo = mock(VoucherRequestRepository.class);
+
+        when(vrepo.findAll()).thenReturn(new ArrayList<>());
+
+        // Act & Assert
+        assertThrows(NoCompletedVoucherRequestException.class, () -> voucherService.getAllCompletedVoucherRequest());
+    }
+
+//    @Test
+//    void testGetAllCompletedVoucherRequest_WithCompletedRequests() throws NoCompletedVoucherRequestException {
+//        // Arrange
+//        VoucherRequestRepository vrepo = mock(VoucherRequestRepository.class);
+//
+//        List<VoucherRequest> allRequests = new ArrayList<>();
+//        allRequests.add(new VoucherRequest(/* initialize with completed request details */));
+//
+//        when(vrepo.findAll()).thenReturn(allRequests);
+//
+//        // Act
+//        List<VoucherRequest> completedRequests = voucherService.getAllCompletedVoucherRequest();
+//
+//        // Assert
+//        assertEquals(allRequests, completedRequests);
+//    }
+
+  
+
+//    @Test
+//    void testPendingRequests() {
+//        // Arrange
+//        VoucherRequestRepository vrepo = mock(VoucherRequestRepository.class);
+//
+//        List<VoucherRequest> allRequests = new ArrayList<>();
+//        allRequests.add(new VoucherRequest(/* initialize with pending request details */));
+//        // Add more pending requests as needed
+//
+//        when(vrepo.findAll()).thenReturn(allRequests);
+//
+//        // Act
+//        List<VoucherRequest> pendingRequests = voucherService.pendingRequests();
+//
+//        // Assert
+//        assertEquals(allRequests, pendingRequests);
+//    }
 
 
   

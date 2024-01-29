@@ -1,5 +1,9 @@
 package com.va.voucher_request.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +13,13 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.dto.Voucher;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
+import com.va.voucher_request.exceptions.NotAnImageFileException;
 import com.va.voucher_request.exceptions.NotFoundException;
 import com.va.voucher_request.exceptions.ParticularVoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.ResourceAlreadyExistException;
@@ -39,37 +45,65 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	EmailRequestImpl impl;
 
 	@Override
-	public VoucherRequest requestVoucher(VoucherRequestDto request) throws ScoreNotValidException, ResourceAlreadyExistException {
-		String userEmail = request.getCandidateEmail();
-		String examName = request.getCloudExam();
-		
+	public VoucherRequest requestVoucher(VoucherRequestDto request, MultipartFile file, String path)
+	        throws ScoreNotValidException, ResourceAlreadyExistException, NotAnImageFileException, IOException {
+	    String userEmail = request.getCandidateEmail();
+	    String examName = request.getCloudExam();
+
 	    // Check if a voucher for the same exam and candidate already exists
-		boolean examExists = vrepo.existsByCloudExamAndCandidateEmail(examName, userEmail);
-		
-		
-        // If candidate has requested for the same exam again, throw an exception
-		if (examExists) {
-			throw new ResourceAlreadyExistException(
-					"You have already requested voucher for this particular exam");
-		}
-		VoucherRequest vreq = new VoucherRequest();
-		if (request.getDoSelectScore() >= 80) {
-			String requestID = UUID.randomUUID().toString();
-			vreq.setId(requestID);
-			vreq.setCandidateName(request.getCandidateName());
-			vreq.setCandidateEmail(request.getCandidateEmail());
-			vreq.setCloudExam(request.getCloudExam());
-			vreq.setCloudPlatform(request.getCloudPlatform());
-			vreq.setDoSelectScore(request.getDoSelectScore());
-			vreq.setDoSelectScoreImage(request.getDoSelectScoreImage());
-			vreq.setPlannedExamDate(request.getPlannedExamDate());
-			vreq.setExamResult("Pending");
-			vrepo.save(vreq);
-			return vreq;
-		} else {
-			throw new ScoreNotValidException("doSelectScore should be >= 80 to issue a voucher.");
-		}
+	    boolean examExists = vrepo.existsByCloudExamAndCandidateEmail(examName, userEmail);
+
+	    // If candidate has requested for the same exam again, throw an exception
+	    if (examExists) {
+	        throw new ResourceAlreadyExistException("You have already requested a voucher for this particular exam");
+	    }
+
+	    VoucherRequest vreq = new VoucherRequest();
+	    if (request.getDoSelectScore() >= 80) {
+	        String requestID = UUID.randomUUID().toString();
+	        vreq.setId(requestID);
+	        vreq.setCandidateName(request.getCandidateName());
+	        vreq.setCandidateEmail(request.getCandidateEmail());
+	        vreq.setCloudExam(request.getCloudExam());
+	        vreq.setCloudPlatform(request.getCloudPlatform());
+	        vreq.setDoSelectScore(request.getDoSelectScore());
+
+	        // Create a random name for the file
+	        String random = UUID.randomUUID().toString();
+
+	        // Set the file name by appending the random string to the original filename
+	        String name = random + file.getOriginalFilename();
+
+	        // Checking if the file is an image (case-insensitive check)
+	        String extension = name.substring(name.lastIndexOf('.')).toLowerCase();
+	        if (!extension.equals(".png") && !extension.equals(".jpeg") && !extension.equals(".jpg")) {
+	            throw new NotAnImageFileException("Invalid image file format. Supported formats: .png, .jpeg, .jpg");
+	        }
+
+	        // Fetching the full path where to store
+	        String filePath = path + File.separator  + name;
+
+	        // Creating and checking if the path exists or not
+	        File f = new File(path);
+	        if (!f.exists()) {
+	            // If not exist, then make this directory
+	            f.mkdir();
+	        }
+
+	        // File copy
+	        Files.copy(file.getInputStream(), Paths.get(filePath));
+
+	        // Updating the path into the database
+	        vreq.setDoSelectScoreImage(filePath);
+	        vreq.setPlannedExamDate(request.getPlannedExamDate());
+	        vreq.setExamResult("Pending");
+	        vrepo.save(vreq);
+	        return vreq;
+	    } else {
+	        throw new ScoreNotValidException("doSelectScore should be >= 80 to issue a voucher.");
+	    }
 	}
+
 
 	@Override  //get all vouchers using candidate email
 	public List<VoucherRequest> getAllVouchersByCandidateEmail(String candidateEmail) throws NotFoundException {
@@ -157,9 +191,8 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		request.setVoucherIssueLocalDate(LocalDate.now());
 		
 		voucherClient.assignUserInVoucher(voucherId, emailId);
-		VoucherRequest v = vrepo.save(request);
+		return vrepo.save(request);
 
-		return v;
 	}
 
 	@Override //to view all the vouchers 
@@ -179,7 +212,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	public List<VoucherRequest> getAllAssignedVoucherRequest() throws NoVoucherPresentException {
 		List<VoucherRequest> allrequest = vrepo.findAll();
 		
-		List<VoucherRequest> assignedvouchers = new ArrayList<VoucherRequest>();
+		List<VoucherRequest> assignedvouchers = new ArrayList<>();
 		
 		if(allrequest.isEmpty())
 		{
@@ -200,7 +233,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	public List<VoucherRequest> getAllNotAssignedVoucherRequest() throws NoVoucherPresentException {
 		List<VoucherRequest> allrequest = vrepo.findAll();
 		
-		List<VoucherRequest> notassignedvouchers = new ArrayList<VoucherRequest>();
+		List<VoucherRequest> notassignedvouchers = new ArrayList<>();
 		
 		if(allrequest.isEmpty())
 		{
@@ -232,6 +265,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		}
 		return filteredList;
 	}
+	
 	
 	@Override
 	public List<String> pendingEmails() {

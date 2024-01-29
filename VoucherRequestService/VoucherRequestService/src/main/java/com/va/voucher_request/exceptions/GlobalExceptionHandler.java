@@ -44,14 +44,14 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ExceptionResponse> handleResourceNotFoundException(ResourceNotFoundException ex , WebRequest request)
 	{
 		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), ex.getMessage(), request.getDescription(false), "Not Found");
-		return new ResponseEntity<ExceptionResponse>(exp,HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(exp,HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler(ResourceAlreadyExistException.class)
 	public ResponseEntity<ExceptionResponse> handleResourceAlreadyExistException(ResourceAlreadyExistException ex , WebRequest request)
 	{
 		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), ex.getMessage(), request.getDescription(false), "Already Exist");
-		return new ResponseEntity<ExceptionResponse>(exp,HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(exp,HttpStatus.NOT_FOUND);
 	}
 
 	@ExceptionHandler(NoCompletedVoucherRequestException.class)
