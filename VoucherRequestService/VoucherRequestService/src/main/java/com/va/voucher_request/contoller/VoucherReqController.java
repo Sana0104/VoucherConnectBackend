@@ -1,18 +1,12 @@
 package com.va.voucher_request.contoller;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.dto.Voucher;
+import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
 import com.va.voucher_request.exceptions.NotAnImageFileException;
@@ -144,30 +139,9 @@ public class VoucherReqController {
     	List<VoucherRequest> pendingRequests = vservice.pendingRequests();
     	return new ResponseEntity<>(pendingRequests, HttpStatus.OK);
     }
-    
-    @GetMapping("/getScoreURL/{voucherRequestId}")
-    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String voucherRequestId) throws IOException {
-        // Find the voucher request by ID
-        Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(voucherRequestId);
-
-        if (optionalVoucherRequest.isPresent()) {
-            VoucherRequest voucherRequest = optionalVoucherRequest.get();
-            String imagePathString = voucherRequest.getDoSelectScoreImage();
-            Path imagePath = Paths.get(imagePathString);
-
-            // Check if the file exists
-            if (Files.exists(imagePath)) {
-                byte[] imageBytes = Files.readAllBytes(imagePath);
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.IMAGE_JPEG); // Adjust the media type based on your image type
-                return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @PostMapping(value = "/uploadCertificate", consumes = {"application/json", "multipart/form-data"}) //post request to request for the voucher
+    public ResponseEntity<VoucherRequest> uploadCertificate(@RequestPart("coupon") String vouchercode,@RequestPart("image") MultipartFile file) throws NotFoundException, ExamNotPassedException, NotAnImageFileException, IOException {
+		VoucherRequest req = vservice.uploadCertificate(vouchercode,file,path);
+		return new ResponseEntity<>(req,HttpStatus.OK);
     }
-
 }
