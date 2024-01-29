@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
 import com.va.voucher_request.exceptions.NotAnImageFileException;
@@ -40,5 +41,8 @@ public interface VoucherReqService {
 	 List<String> pendingEmails();
 		
 	 List<VoucherRequest> pendingRequests();
+
+
+	VoucherRequest uploadCertificate(String voucherCode, MultipartFile certificateFile, String path) throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException;
 
 }

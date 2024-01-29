@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.dto.Voucher;
+import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
 import com.va.voucher_request.exceptions.NotAnImageFileException;
@@ -157,6 +158,53 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		}
 
 	}
+	//method to upload the certificate once the exam is passed
+	@Override
+	public VoucherRequest uploadCertificate(String voucherCode, MultipartFile certificateFile, String path) throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException {
+	    VoucherRequest voucherRequest = vrepo.findByVoucherCode(voucherCode);
+
+	    if (voucherRequest != null) {
+	        // Check if the exam result is "pass"
+	        if (!voucherRequest.getExamResult().equalsIgnoreCase("pass")) {
+	            throw new ExamNotPassedException("Certificate can only be uploaded for vouchers with exam result 'pass'.");
+	        }
+	        
+	        String certificateFileName = voucherCode + certificateFile.getOriginalFilename();
+
+	        // Validate the certificate file is an image
+	        String extension = certificateFileName.substring(certificateFileName.lastIndexOf('.')).toLowerCase();
+	        if (!extension.equals(".png") && !extension.equals(".jpeg") && !extension.equals(".jpg")) {
+	            throw new NotAnImageFileException("Invalid image file format. Supported formats: .png, .jpeg, .jpg");
+	        }
+	        
+
+	        
+	     // logic to save the certificate file to a specific location
+	        String certificateFilePath = path + File.separator  + certificateFileName;
+
+	        // Creating and checking if the path exists or not
+	        File f = new File(path);
+	        if (!f.exists()) {
+	            // If not exist, then make this directory
+	            f.mkdir();
+	        }
+
+	     // Save the certificate file and update the certificate path
+	        Files.copy(certificateFile.getInputStream(), Paths.get(certificateFilePath));
+	        voucherRequest.setCertificateFileImage(certificateFileName);
+
+	        try {
+	            vrepo.save(voucherRequest);
+	            return voucherRequest;
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new RuntimeException("Error saving VoucherRequest");
+	        }
+	    } else {
+	        throw new NotFoundException("No voucher found for voucher code: " + voucherCode);
+	    }
+	}
+	
 
 	@Override //assign the voucher to the respective candidate 
 	public VoucherRequest assignVoucher(String voucherId, String emailId,String voucherrequestId) throws VoucherNotFoundException, NotFoundException, VoucherIsAlreadyAssignedException, ParticularVoucherIsAlreadyAssignedException {

@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.dto.Voucher;
+import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
 import com.va.voucher_request.exceptions.NotAnImageFileException;
@@ -137,5 +138,10 @@ public class VoucherReqController {
     public ResponseEntity<List<VoucherRequest>> pendingRequests() {
     	List<VoucherRequest> pendingRequests = vservice.pendingRequests();
     	return new ResponseEntity<>(pendingRequests, HttpStatus.OK);
+    }
+    @PostMapping(value = "/uploadCertificate", consumes = {"application/json", "multipart/form-data"}) //post request to request for the voucher
+    public ResponseEntity<VoucherRequest> uploadCertificate(@RequestPart("coupon") String vouchercode,@RequestPart("image") MultipartFile file) throws NotFoundException, ExamNotPassedException, NotAnImageFileException, IOException {
+		VoucherRequest req = vservice.uploadCertificate(vouchercode,file,path);
+		return new ResponseEntity<>(req,HttpStatus.OK);
     }
 }
