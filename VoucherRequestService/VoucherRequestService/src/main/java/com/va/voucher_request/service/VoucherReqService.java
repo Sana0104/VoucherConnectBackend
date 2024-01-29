@@ -1,10 +1,14 @@
 package com.va.voucher_request.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
+import com.va.voucher_request.exceptions.NotAnImageFileException;
 import com.va.voucher_request.exceptions.NotFoundException;
 import com.va.voucher_request.exceptions.ParticularVoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.ResourceAlreadyExistException;
@@ -16,7 +20,7 @@ import com.va.voucher_request.model.VoucherRequestDto;
 
 public interface VoucherReqService { 
 	
-	VoucherRequest requestVoucher(VoucherRequestDto request) throws ScoreNotValidException, ResourceAlreadyExistException;
+	VoucherRequest requestVoucher(VoucherRequestDto request,MultipartFile file,String path) throws ScoreNotValidException, ResourceAlreadyExistException,NotAnImageFileException,IOException;
 
 	List<VoucherRequest> getAllVouchersByCandidateEmail(String candidateEmail) throws NotFoundException;
 	

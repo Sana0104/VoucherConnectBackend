@@ -1,24 +1,21 @@
 package com.va.voucher_request.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +25,7 @@ import com.va.voucher_request.contoller.VoucherReqController;
 import com.va.voucher_request.dto.Voucher;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
+import com.va.voucher_request.exceptions.NotAnImageFileException;
 import com.va.voucher_request.exceptions.NotFoundException;
 import com.va.voucher_request.exceptions.ParticularVoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.ResourceAlreadyExistException;
@@ -40,7 +38,7 @@ import com.va.voucher_request.service.EmailRequestImpl;
 import com.va.voucher_request.service.VoucherReqServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class VoucherReqControllerTest {
+ class VoucherReqControllerTest {
 	
 	@Mock
     private VoucherReqServiceImpl voucherReqService;
@@ -56,12 +54,12 @@ public class VoucherReqControllerTest {
     
     
     @Test
-    void testRequestVoucher() throws ScoreNotValidException, ResourceAlreadyExistException {
+    void testRequestVoucher() throws ScoreNotValidException, ResourceAlreadyExistException, NotAnImageFileException, IOException {
         VoucherRequestDto requestDto = new VoucherRequestDto();
         VoucherRequest voucherRequest=new VoucherRequest();
-        when(voucherReqService.requestVoucher(requestDto)).thenReturn(voucherRequest);
-        ResponseEntity<VoucherRequest> response = voucherReqController.requestVoucher(requestDto);
-        verify(voucherReqService, times(1)).requestVoucher(requestDto);
+        when(voucherReqService.requestVoucher(requestDto, null, null)).thenReturn(voucherRequest);
+        ResponseEntity<VoucherRequest> response = voucherReqController.requestVoucher(requestDto, null);
+        verify(voucherReqService, times(1)).requestVoucher(requestDto, null, null);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(voucherRequest,response.getBody());
         
@@ -104,6 +102,7 @@ public class VoucherReqControllerTest {
         when(voucherReqService.updateExamDate(voucherCode, newExamDate)).thenThrow(new NotFoundException("Voucher not found"));
 
         // Perform the request and assert the exception
+        
        
         Assertions.assertThrows(NotFoundException.class, () -> {
             voucherReqController.updateExamDate(voucherCode, newExamDate);

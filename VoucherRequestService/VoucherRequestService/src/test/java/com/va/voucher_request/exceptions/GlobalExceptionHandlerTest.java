@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.ServletWebRequest;
 
-public class GlobalExceptionHandlerTest {
+ class GlobalExceptionHandlerTest {
 	
 	 private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
