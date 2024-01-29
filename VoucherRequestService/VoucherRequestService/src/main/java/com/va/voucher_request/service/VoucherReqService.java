@@ -43,6 +43,5 @@ public interface VoucherReqService {
 	 List<VoucherRequest> pendingRequests();
 
 
-	VoucherRequest uploadCertificate(String voucherCode, MultipartFile certificateFile, String path) throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException;
-
+	
 }
