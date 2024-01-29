@@ -1,7 +1,6 @@
 package com.va.voucher_request.model;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,9 +34,6 @@ public class VoucherRequestDto {
     
     @NotBlank(message = "DoSelect Score is required")
     private int doSelectScore;
-    
-    @NotBlank
-    private String doSelectScoreImage;
     
     @NotBlank
     @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$", message = "Date must be in yyyy-MM-dd format")

@@ -26,7 +26,7 @@ import com.voucherservice.exception.TheseDataIsAlreadyPresentException;
 import com.voucherservice.service.VoucherServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class VoucherServiceTest {
+ class VoucherServiceTest {
 
     @Mock
     private VoucherServiceImpl voucherService;
@@ -35,7 +35,7 @@ public class VoucherServiceTest {
     private VoucherServiceImpl voucherServiceImpl;
 
     @Test
-    public void testSaveAllVouchers_ValidFile() throws IOException, DataIsNotInsertedException, TheseDataIsAlreadyPresentException {
+     void testSaveAllVouchers_ValidFile() throws IOException, DataIsNotInsertedException, TheseDataIsAlreadyPresentException {
         // Given
         MultipartFile file = createMockMultipartFile("valid-file.xlsx", "test data".getBytes());
         List<Voucher> mockVouchers = getMockVoucherList();
@@ -54,7 +54,7 @@ public class VoucherServiceTest {
     }
 
     @Test
-    public void testSaveAllVouchers_Exception() throws IOException, DataIsNotInsertedException, TheseDataIsAlreadyPresentException {
+     void testSaveAllVouchers_Exception() throws IOException, DataIsNotInsertedException, TheseDataIsAlreadyPresentException {
         // Given
         MultipartFile file = createMockMultipartFile("test-file.xlsx", "test data".getBytes());
 
@@ -69,7 +69,7 @@ public class VoucherServiceTest {
     }
 
     @Test
-    public void testGetAllVouchers_NoVoucherPresent() throws NoVoucherPresentException {
+     void testGetAllVouchers_NoVoucherPresent() throws NoVoucherPresentException {
         // Mocking service behavior
         when(voucherService.getAllVouchers()).thenThrow(new NoVoucherPresentException());
 
@@ -81,7 +81,7 @@ public class VoucherServiceTest {
     }
 
     @Test
-    public void testGetAllVouchers_WithVouchers() throws NoVoucherPresentException {
+     void testGetAllVouchers_WithVouchers() throws NoVoucherPresentException {
         // Given
         List<Voucher> mockVouchers = getMockVoucherList();
 

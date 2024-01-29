@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import com.voucherservice.exception.ResourceAlreadyExistException;
 
-public class ResourceAlreadyExistExceptionTest {
+ class ResourceAlreadyExistExceptionTest {
 
     @Test
-    public void testConstructorWithMessage() {
+     void testConstructorWithMessage() {
         // Given
         String errorMessage = "Resource already exists";
 
@@ -21,7 +21,7 @@ public class ResourceAlreadyExistExceptionTest {
     }
 
     @Test
-    public void testDefaultConstructor() {
+     void testDefaultConstructor() {
         // When
         ResourceAlreadyExistException exception = new ResourceAlreadyExistException(null);
 
@@ -29,6 +29,5 @@ public class ResourceAlreadyExistExceptionTest {
         assertEquals(null, exception.getMessage());
     }
 
-    // Add more test cases as needed
 }
 

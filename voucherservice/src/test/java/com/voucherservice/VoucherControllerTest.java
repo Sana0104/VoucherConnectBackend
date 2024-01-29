@@ -23,7 +23,7 @@ import com.voucherservice.exception.NoVoucherPresentException;
 import com.voucherservice.service.VoucherService;
 
 @WebMvcTest(VoucherController.class)
-public class VoucherControllerTest {
+ class VoucherControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -32,7 +32,7 @@ public class VoucherControllerTest {
     private VoucherService voucherService;
 
     @Test
-    public void testAddAllVouchers_ValidFile() throws Exception {
+     void testAddAllVouchers_ValidFile() throws Exception {
         // Mocking the service method
         List<Voucher> mockVouchers = Arrays.asList(
                 new Voucher("AWS", "Certification", "ABC123", LocalDate.now(), LocalDate.now().plusDays(30)),
@@ -52,7 +52,7 @@ public class VoucherControllerTest {
     }
 
     @Test
-    public void testAddAllVouchers_InvalidFile() throws Exception {
+     void testAddAllVouchers_InvalidFile() throws Exception {
         // Mocking the service method to throw GivenFileIsNotExcelFileException
         Mockito.when(voucherService.saveAllVouchers(Mockito.any(MultipartFile.class)))
                 .thenThrow(new GivenFileIsNotExcelFileException());
@@ -68,7 +68,7 @@ public class VoucherControllerTest {
     }
 
     @Test
-    public void testGetAllAvailableVouchers() throws Exception {
+     void testGetAllAvailableVouchers() throws Exception {
         // Mocking the service method
         List<Voucher> mockVouchers = Arrays.asList(
                 new Voucher("AWS", "Certification", "ABC123", LocalDate.now(), LocalDate.now().plusDays(30)),
@@ -86,7 +86,7 @@ public class VoucherControllerTest {
     }
 
     @Test
-    public void testGetAllAvailableVouchers_NoVoucherPresent() throws Exception {
+     void testGetAllAvailableVouchers_NoVoucherPresent() throws Exception {
         // Mocking the service method to throw NoVoucherPresentException
         Mockito.when(voucherService.getAllVouchers()).thenThrow(new NoVoucherPresentException());
 
@@ -98,5 +98,4 @@ public class VoucherControllerTest {
         Mockito.verify(voucherService, Mockito.times(1)).getAllVouchers();
     }
 
-    // Additional test cases for other controller methods can be added similarly
 }

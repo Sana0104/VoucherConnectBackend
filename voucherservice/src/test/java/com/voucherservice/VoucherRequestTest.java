@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import com.voucherservice.dto.VoucherRequest;
 
-public class VoucherRequestTest {
+ class VoucherRequestTest {
 
     @Test
-    public void testDefaultConstructor() {
+     void testDefaultConstructor() {
         // Given
         VoucherRequest voucherRequest = new VoucherRequest();
 
@@ -22,7 +22,7 @@ public class VoucherRequestTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+     void testEqualsAndHashCode() {
         // Given
         VoucherRequest voucherRequest1 = new VoucherRequest();
         voucherRequest1.setId("123");
@@ -41,7 +41,7 @@ public class VoucherRequestTest {
     }
 
     @Test
-    public void testSetterWithChaining() {
+     void testSetterWithChaining() {
         // Given
         VoucherRequest voucherRequest = new VoucherRequest();
 
@@ -57,7 +57,7 @@ public class VoucherRequestTest {
     // Add more test cases as needed
 
     @Test
-    public void testGetterSetter() {
+     void testGetterSetter() {
         // Given
         VoucherRequest voucherRequest = new VoucherRequest();
 
@@ -91,7 +91,7 @@ public class VoucherRequestTest {
     }
 
     @Test
-    public void testToString() {
+     void testToString() {
         // Given
         VoucherRequest voucherRequest = new VoucherRequest();
 

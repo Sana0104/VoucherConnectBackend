@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import com.voucherservice.exception.DataIsNotInsertedException;
 
-public class DataIsNotInsertedExceptionTest {
+ class DataIsNotInsertedExceptionTest {
 
     @Test
-    public void testDefaultConstructor() {
+     void testDefaultConstructor() {
         // When
         DataIsNotInsertedException exception = new DataIsNotInsertedException();
 
@@ -18,7 +18,7 @@ public class DataIsNotInsertedExceptionTest {
     }
 
     @Test
-    public void testConstructorWithMessage() {
+     void testConstructorWithMessage() {
         // Given
         String errorMessage = "Error while inserting data";
 

@@ -20,12 +20,12 @@ import com.voucherservice.exception.ResourceNotFoundException;
 import feign.FeignException;
 import feign.Response;
 
-public class CustomErrorDecoderTest {
+ class CustomErrorDecoderTest {
 
     private CustomErrorDecoder customErrorDecoder = new CustomErrorDecoder();
 
     @Test
-    public void testDecodeResourceNotFoundException() {
+     void testDecodeResourceNotFoundException() {
         Response response = mockResponse(404, "{\"message\":\"Not Found\"}");
 
         Exception exception = customErrorDecoder.decode("methodKey", response);
@@ -35,7 +35,7 @@ public class CustomErrorDecoderTest {
     }
 
     @Test
-    public void testDecodeResourceAlreadyExistException() {
+     void testDecodeResourceAlreadyExistException() {
         Response response = mockResponse(406, "{\"message\":\"Already Exist\"}");
 
         Exception exception = customErrorDecoder.decode("methodKey", response);
@@ -45,7 +45,7 @@ public class CustomErrorDecoderTest {
     }
 
     @Test
-    public void testDecodeOtherErrors() {
+     void testDecodeOtherErrors() {
         Response response = mockResponse(500, "{\"message\":\"Internal Server Error\"}");
 
 //        Exception exception = customErrorDecoder.decode("methodKey", response);
@@ -55,7 +55,7 @@ public class CustomErrorDecoderTest {
     }
 
     @Test
-    public void testDecodeEmptyResponseBody() {
+     void testDecodeEmptyResponseBody() {
         Response response = mockResponse(404, null);
 
         Exception exception = customErrorDecoder.decode("methodKey", response);

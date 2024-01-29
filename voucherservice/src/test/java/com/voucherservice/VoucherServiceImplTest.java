@@ -29,7 +29,7 @@ import com.voucherservice.repository.VoucherRepository;
 import com.voucherservice.service.VoucherServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class VoucherServiceImplTest {
+ class VoucherServiceImplTest {
 
     @Mock
     private VoucherRepository voucherRepo;
@@ -41,7 +41,7 @@ public class VoucherServiceImplTest {
     private VoucherServiceImpl voucherService;
 
     @Test
-    public void testSaveAllVouchers_ValidFile() throws IOException, DataIsNotInsertedException, TheseDataIsAlreadyPresentException {
+     void testSaveAllVouchers_ValidFile() throws IOException, DataIsNotInsertedException, TheseDataIsAlreadyPresentException {
         // Given
         MultipartFile file = createMockMultipartFile("valid-file.xlsx", "test data".getBytes());
         List<Voucher> mockVouchers = getMockVoucherList();
@@ -60,7 +60,7 @@ public class VoucherServiceImplTest {
     }
 
     @Test
-    public void testSaveAllVouchers_DuplicateData() throws IOException, DataIsNotInsertedException {
+     void testSaveAllVouchers_DuplicateData() throws IOException, DataIsNotInsertedException {
         MultipartFile file = createMockMultipartFile("duplicate-file.xlsx", "test data".getBytes());
 
         // Mocking repository behavior to simulate existing data
@@ -75,7 +75,7 @@ public class VoucherServiceImplTest {
     }
 
     @Test
-    public void testSaveAllVouchers_SaveAllException() throws IOException {
+     void testSaveAllVouchers_SaveAllException() throws IOException {
         // Given
         MultipartFile file = createMockMultipartFile("test-file.xlsx", "test data".getBytes());
         List<Voucher> mockVouchers = getMockVoucherList();
@@ -95,7 +95,7 @@ public class VoucherServiceImplTest {
     }
 
     @Test
-    public void testGetAllVouchers_NoVoucherPresent() {
+     void testGetAllVouchers_NoVoucherPresent() {
         // Given
         when(voucherRepo.findAll()).thenReturn(new ArrayList<>());
 
@@ -107,7 +107,7 @@ public class VoucherServiceImplTest {
     }
 
     @Test
-    public void testGetAllVouchers_ExpiredVouchers() throws NoVoucherPresentException {
+     void testGetAllVouchers_ExpiredVouchers() throws NoVoucherPresentException {
         // Given
         List<Voucher> mockVouchers = getMockVoucherList();
         LocalDate yesterday = LocalDate.now().minusDays(1);

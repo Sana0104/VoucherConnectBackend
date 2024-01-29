@@ -1,10 +1,9 @@
-package com.va.voucher_request.model;
+	package com.va.voucher_request.model;
 import java.time.LocalDate;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
