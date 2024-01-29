@@ -1,4 +1,4 @@
-	package com.va.voucher_request.model;
+package com.va.voucher_request.model;
 import java.time.LocalDate;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -31,7 +31,9 @@ public class VoucherRequest {
     private LocalDate voucherExpiryLocalDate;
     private LocalDate plannedExamDate;
     private String examResult;
-	private String certificateFileImage;
+
+    private String certificateFileImage;
+
     
 
 }
