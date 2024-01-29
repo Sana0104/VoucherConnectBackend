@@ -109,5 +109,13 @@ public class VoucherRequestClientController {
     public ResponseEntity<List<VoucherRequest>> pendingRequests() {
 		return voucherReqClient.pendingRequests();
 	}
+	
+	@SecurityRequirement(name = "api")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@GetMapping("/getScoreURL/{voucherRequestId}")
+	public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String voucherRequestId){
+		return voucherReqClient.getVoucherRequestImage(voucherRequestId);
+		
+	}
 
 }
