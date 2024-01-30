@@ -31,8 +31,8 @@ public class VoucherRequest {
     private LocalDate voucherExpiryLocalDate;
     private LocalDate plannedExamDate;
     private String examResult;
-
     private String certificateFileImage;
+    
 
     
 

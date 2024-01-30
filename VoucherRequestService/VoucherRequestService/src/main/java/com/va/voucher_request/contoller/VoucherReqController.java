@@ -1,5 +1,6 @@
 package com.va.voucher_request.contoller;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +11,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,7 +25,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.dto.Voucher;
 import com.va.voucher_request.exceptions.ExamNotPassedException;
@@ -152,11 +163,48 @@ public class VoucherReqController {
 		return new ResponseEntity<>(req,HttpStatus.OK);
     }
 
-    
-    @GetMapping("/getScoreURL/{voucherRequestId}")
-    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String voucherRequestId) throws IOException {
+    @GetMapping(value = "/getCertificate/{id}")
+    public ResponseEntity<Resource> getCertificate(@PathVariable("id") String id) throws NotFoundException, IOException {
+        Optional<VoucherRequest> voucherRequest = vservice.findByRequestId(id);
+        
+        if (voucherRequest.isPresent() && voucherRequest.get().getCertificateFileImage() != null) {
+            // Load the certificate file
+            Path certificatePath = Paths.get(path + File.separator + voucherRequest.get().getCertificateFileImage());
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(certificatePath));
+            
+            // Determine the file extension
+            String fileExtension = voucherRequest.get().getCertificateFileImage().substring(voucherRequest.get().getCertificateFileImage().lastIndexOf('.'));
+            
+            // Set the appropriate content type based on the file extension
+            MediaType mediaType;
+            if (fileExtension.equalsIgnoreCase(".pdf")) {
+                mediaType = MediaType.APPLICATION_PDF;
+            } else if (fileExtension.equalsIgnoreCase(".png") || fileExtension.equalsIgnoreCase(".jpg")|| fileExtension.equalsIgnoreCase(".jpeg")) {
+                mediaType = MediaType.IMAGE_JPEG;
+            } else {
+                throw new NotFoundException("Unsupported file format");
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + voucherRequest.get().getCertificateFileImage());
+            
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(resource.contentLength())
+                    .contentType(mediaType)
+                    .body(resource);
+        } else {
+            throw new NotFoundException("Certificate not found for request ID: " + id);
+        }
+    }
+
+
+
+
+    @GetMapping("/getDoSelectImage/{id}")
+    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id) throws IOException {
         // Find the voucher request by ID
-        Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(voucherRequestId);
+        Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(id);
 
         if (optionalVoucherRequest.isPresent()) {
             VoucherRequest voucherRequest = optionalVoucherRequest.get();
@@ -166,7 +214,6 @@ public class VoucherReqController {
             // Check if the file exists
             if (Files.exists(imagePath)) {
                 byte[] imageBytes = Files.readAllBytes(imagePath);
-
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.IMAGE_JPEG); // Adjust the media type based on your image type
                 return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
@@ -177,6 +224,6 @@ public class VoucherReqController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
+   
 
 }

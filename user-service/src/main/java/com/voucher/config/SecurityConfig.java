@@ -56,7 +56,7 @@ public class SecurityConfig {
 				.authenticationEntryPoint(entryPoint)
 				.and()
 				.authorizeHttpRequests()
-				.requestMatchers("/error","/v3/**","swagger-ui/**","/app/**","/user/register","/user/**","user/getProfileImageURL/{userEmail}")
+				.requestMatchers("/error","/v3/**","swagger-ui/**","/user/register","/user/**")
 				.permitAll()
 				.requestMatchers("/requests/**","/voucher/**").authenticated()
 				.and()

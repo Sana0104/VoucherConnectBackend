@@ -40,5 +40,11 @@ public interface VoucherClient {
 	
 	@DeleteMapping("/assignUserInVoucher/{voucherId}")
 	public ResponseEntity<String> deleteVoucher(@PathVariable String voucherId);
+	
+	@GetMapping("/getAllAssignedVoucher")
+	public ResponseEntity<List<Voucher>> getAllAssigedVoucherThatAreNotExpiredByDate();
+	
+	@GetMapping("/getAllAssignedButNotUtilizedVoucher")
+	public ResponseEntity<List<Voucher>> getAllVoucherWhichAreAssignedButNotUtilized();
 
 }

@@ -165,15 +165,15 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 	    if (voucherRequest != null) {
 	        // Check if the exam result is "pass"
-	        if (!voucherRequest.getExamResult().equalsIgnoreCase("pass")) {
+	        if (!voucherRequest.getExamResult().equalsIgnoreCase("Pass")) {
 	            throw new ExamNotPassedException("Certificate can only be uploaded for vouchers with exam result 'pass'.");
 	        }
 	        
-	        String certificateFileName = voucherCode + certificateFile.getOriginalFilename();
+	        String certificateFileName = certificateFile.getOriginalFilename();
 
 	        // Validate the certificate file is an image
 	        String extension = certificateFileName.substring(certificateFileName.lastIndexOf('.')).toLowerCase();
-	        if (!extension.equals(".png") && !extension.equals(".jpeg") && !extension.equals(".jpg")) {
+	        if (!extension.equals(".png") && !extension.equals(".jpeg") && !extension.equals(".jpg") && !extension.equals(".pdf")) {
 	            throw new NotAnImageFileException("Invalid image file format. Supported formats: .png, .jpeg, .jpg");
 	        }
 	        
@@ -359,10 +359,11 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 }
 
 
-	public Optional<VoucherRequest> findByRequestId(String voucherRequestId) {
-		return vrepo.findById(voucherRequestId);
+	public Optional<VoucherRequest> findByRequestId(String id) {
+		return vrepo.findById(id);
 	}
-
+	
+	
 
 	
 }
