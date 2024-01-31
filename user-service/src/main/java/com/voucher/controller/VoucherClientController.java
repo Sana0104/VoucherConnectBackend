@@ -31,51 +31,61 @@ public class VoucherClientController {
  
 	@PostMapping("/addVouchers")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<?> addAllVouchers(@RequestParam("file") MultipartFile file) {
 		return voucherClient.addAllVouchers(file);
 	}
 	@GetMapping("/getAllVouchers")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<List<Voucher>> getAllAvailableVouchers(){
 		return voucherClient.getAllAvailableVouchers();
 	}
 	@GetMapping("/vouchersByExamName/{examName}")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<List<Voucher>> getAllVoucherByExamName(@PathVariable String examName){
 		return voucherClient.getAllVoucherByExamName(examName);
 	}
 	@GetMapping("/getVoucherById/{id}")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<Voucher> getVoucherById(@PathVariable String id){
 		return voucherClient.getVoucherById(id);
 	}
 	@GetMapping("/getVoucherByCloudPlatform/{cloudPlatform}")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<List<Voucher>> getAllVoucherByCloudPlatform(@PathVariable String cloudPlatform){
 		return voucherClient.getAllVoucherByCloudPlatform(cloudPlatform);
 	}
 	@GetMapping("/getAllExpiredVouchers")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<List<Voucher>> getAllExpiredVoucher(){
 		return voucherClient.getAllExpiredVoucher();
 	}
 	@GetMapping("/assignUserInVoucher/{voucherId}/{userEmail}")
 	@PreAuthorize("hasAnyRole('ADMIN','CANDIDATE')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<Voucher> assignUserInVoucher(@PathVariable String voucherId,@PathVariable String userEmail){
 		return voucherClient.assignUserInVoucher(voucherId, userEmail);
 	}
 	@DeleteMapping("/assignUserInVoucher/{voucherId}")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<String> deleteVoucher(@PathVariable String voucherId){
 		return voucherClient.deleteVoucher(voucherId);
 	}
 	@GetMapping("/getAllAssignedVoucher")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<List<Voucher>> getAllAssigedVoucherThatAreNotExpiredByDate(){
 		return voucherClient.getAllAssigedVoucherThatAreNotExpiredByDate();
 	}
 	@GetMapping("/getAllAssignedButNotUtilizedVoucher")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<List<Voucher>> getAllVoucherWhichAreAssignedButNotUtilized(){
 		return voucherClient.getAllVoucherWhichAreAssignedButNotUtilized();
 	}

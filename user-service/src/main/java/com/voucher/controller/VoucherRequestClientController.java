@@ -31,16 +31,19 @@ public class VoucherRequestClientController {
 	VoucherRequestClient voucherReqClient;
 	@PostMapping("/voucher")
 	@PreAuthorize("hasAnyRole('CANDIDATE')")
+	@SecurityRequirement(name = "api")
     public ResponseEntity<VoucherRequest> requestVoucher(@RequestBody VoucherRequestDto request){
 		return voucherReqClient.requestVoucher(request);
 	}
     @GetMapping("/{candidateEmail}")
     @PreAuthorize("hasAnyRole('CANDIDATE')")
+    @SecurityRequirement(name = "api")
     public ResponseEntity<List<VoucherRequest>> getAllVouchersByCandidateEmail(@PathVariable String candidateEmail){
     	return voucherReqClient.getAllVouchersByCandidateEmail(candidateEmail);
     }
     @PutMapping("/updateExamDate/{voucherCode}/{newExamDate}")
     @PreAuthorize("hasAnyRole('CANDIDATE')")
+    @SecurityRequirement(name = "api")
 	public ResponseEntity<VoucherRequest> updateExamDate(@PathVariable String voucherCode,@PathVariable LocalDate newExamDate){
     	return voucherReqClient.updateExamDate(voucherCode, newExamDate);
     }
@@ -48,44 +51,51 @@ public class VoucherRequestClientController {
  
     @PutMapping("/{voucherCode}/{newExamResult}")
     @PreAuthorize("hasAnyRole('CANDIDATE')")
+    @SecurityRequirement(name = "api")
     public ResponseEntity<VoucherRequest> updateResultStatus( @PathVariable String voucherCode, @PathVariable String newExamResult){
     	return voucherReqClient.updateResultStatus(voucherCode, newExamResult);
     }
     @GetMapping("/assignvoucher/{voucherId}/{emailId}/{voucherrequestId}")
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @SecurityRequirement(name = "api")
     public ResponseEntity<VoucherRequest> assignVoucher(@PathVariable String voucherId,@PathVariable String emailId,@PathVariable String voucherrequestId){
     	return voucherReqClient.assignVoucher(voucherId, emailId, voucherrequestId);
     }
     @GetMapping("/getAllVouchers")
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @SecurityRequirement(name = "api")
     public ResponseEntity<List<VoucherRequest>> getAllVouchers(){
     	return voucherReqClient.getAllVouchers();
     }
     @GetMapping("/allAssignedVoucher")
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @SecurityRequirement(name = "api")
     public ResponseEntity<List<VoucherRequest>> getAllAssignedVoucher(){
     	return voucherReqClient.getAllAssignedVoucher();
     }
     @GetMapping("/allUnAssignedVoucher")
     @PreAuthorize("hasAnyRole('ADMIN')")
-//    @SecurityRequirement(name = "api")
+     @SecurityRequirement(name = "api")
     public ResponseEntity<List<VoucherRequest>> getAllUnAssignedVoucher(){
     	return voucherReqClient.getAllUnAssignedVoucher();
     }
     @GetMapping("/getAllCompletedVoucherRequests")
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @SecurityRequirement(name = "api")
     public ResponseEntity<List<VoucherRequest>> getAllCompletedVoucherRequests(){
     	return voucherReqClient.getAllCompletedVoucherRequests();
     }
 
 	@GetMapping("/sendPendingEmails")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
 	public ResponseEntity<List<String>> pendingEmails() {
 		return  voucherReqClient.pendingEmails();
 	}
 
 	@GetMapping("/pendingResultRequests")
 	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
     public ResponseEntity<List<VoucherRequest>> pendingRequests() {
 		return voucherReqClient.pendingRequests();
 	}
