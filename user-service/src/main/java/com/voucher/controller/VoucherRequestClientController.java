@@ -5,6 +5,7 @@ import java.util.List;
  
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
- 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.voucher.client.VoucherRequestClient;
 import com.voucher.dto.VoucherRequest;
 import com.voucher.dto.VoucherRequestDto;
@@ -99,6 +102,27 @@ public class VoucherRequestClientController {
     public ResponseEntity<List<VoucherRequest>> pendingRequests() {
 		return voucherReqClient.pendingRequests();
 	}
+	
+	@GetMapping("/getDoSelectImage/{id}")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
+    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id){
+    	return voucherReqClient.getVoucherRequestImage(id);
+    }
+    
+    @PostMapping(value = "/uploadCertificate", consumes = {"application/json", "multipart/form-data"}) //post request to request for the voucher
+    @PreAuthorize("hasAnyRole('CANDIDATE')")
+	@SecurityRequirement(name = "api")
+    public ResponseEntity<VoucherRequest> uploadCertificate(@RequestPart("coupon") String vouchercode,@RequestPart("image") MultipartFile file){
+    	return voucherReqClient.uploadCertificate(vouchercode, file);
+    }
+    
+    @GetMapping(value = "/getCertificate/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
+    public ResponseEntity<Resource> getCertificate(@PathVariable("id") String id){
+    	return voucherReqClient.getCertificate(id);
+    }
  
 	@SecurityRequirement(name = "api")
 	@PreAuthorize("hasAnyRole('ADMIN')")
