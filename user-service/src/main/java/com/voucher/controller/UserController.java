@@ -80,9 +80,15 @@ public class UserController {
             e.printStackTrace(); // Replace with your logging mechanism
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        
+        
     }
 
-
+    @GetMapping("/getUserByName/{name}")
+    public ResponseEntity<Optional<User>> getUserByName(@PathVariable String name) {
+    	return new ResponseEntity<Optional<User>>(service.getUserByName(name), HttpStatus.OK);
+    			
+    }
 
 
 }

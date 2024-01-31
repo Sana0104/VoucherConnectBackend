@@ -55,4 +55,6 @@ public interface VoucherRequestClient {
     @GetMapping("/getScoreURL/{voucherRequestId}")
     public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String voucherRequestId);
 
+    @GetMapping("/denyRequest/{requestId}")
+    public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId);
 }
