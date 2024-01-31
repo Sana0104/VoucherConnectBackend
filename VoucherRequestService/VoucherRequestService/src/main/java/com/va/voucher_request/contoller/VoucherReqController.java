@@ -222,8 +222,15 @@ public class VoucherReqController {
             }
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            
         }
     }
-   
-
+   //method to deny request
+    @GetMapping("/denyRequest/{requestId}")
+    public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId) throws NoVoucherPresentException {
+    	VoucherRequest denyRequest = vservice.denyRequest(requestId);
+		return new ResponseEntity<VoucherRequest>(denyRequest, HttpStatus.OK);
+		
+    	
+    }
 }

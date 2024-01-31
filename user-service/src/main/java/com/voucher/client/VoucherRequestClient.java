@@ -1,15 +1,20 @@
 package com.voucher.client;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.voucher.dto.VoucherRequest;
 import com.voucher.dto.VoucherRequestDto;
@@ -52,7 +57,15 @@ public interface VoucherRequestClient {
     @GetMapping("/pendingResultRequests")
     public ResponseEntity<List<VoucherRequest>> pendingRequests() ;
     
-    @GetMapping("/getScoreURL/{voucherRequestId}")
-    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String voucherRequestId);
-
+    @GetMapping("/getDoSelectImage/{id}")
+    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id);
+    
+    @PostMapping(value = "/uploadCertificate", consumes = {"application/json", "multipart/form-data"}) //post request to request for the voucher
+    public ResponseEntity<VoucherRequest> uploadCertificate(@RequestPart("coupon") String vouchercode,@RequestPart("image") MultipartFile file);
+    
+    @GetMapping(value = "/getCertificate/{id}")
+    public ResponseEntity<Resource> getCertificate(@PathVariable("id") String id);
+       
+    @GetMapping("/denyRequest/{requestId}")
+    public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId);
 }

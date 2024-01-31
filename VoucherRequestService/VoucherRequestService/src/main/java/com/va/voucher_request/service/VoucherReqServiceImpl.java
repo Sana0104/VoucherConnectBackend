@@ -15,7 +15,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.va.voucher_request.client.UserClient;
 import com.va.voucher_request.client.VoucherClient;
+import com.va.voucher_request.dto.User;
 import com.va.voucher_request.dto.Voucher;
 import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
@@ -45,6 +47,10 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	@Autowired
 	EmailRequestImpl impl;
 	
+
+	@Autowired
+	UserClient userClient;
+
 //image get 
 	@Override
 	public VoucherRequest requestVoucher(VoucherRequestDto request, MultipartFile file, String path)
@@ -160,6 +166,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 	}
 	//method to upload the certificate once the exam is passed
+	//method2
 	@Override
 	public VoucherRequest uploadCertificate(String voucherCode, MultipartFile certificateFile, String path) throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException {
 	    VoucherRequest voucherRequest = vrepo.findByVoucherCode(voucherCode);
@@ -321,12 +328,15 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		List<String> pending = new ArrayList<>();
 		List<VoucherRequest> allrequest = vrepo.findAll();
 		LocalDate today = LocalDate.now();
-		String mentorEmail = "boyinapalli.ravi-chandra@capgemini.com";
+		
 		for(VoucherRequest v: allrequest) {
-			if(v.getExamResult().equalsIgnoreCase("pending")&&v.getPlannedExamDate().isBefore(today)) {
+			if(v.getExamResult().equalsIgnoreCase("pending")&&v.getPlannedExamDate().isBefore(today)&&v.getVoucherCode()!=null) {
 				
 				pending.add(v.getCandidateEmail());
 				
+				Optional<User> userByName = userClient.getUserByName(v.getCandidateName()).getBody();
+				User user = userByName.get();
+				String mentorEmail = user.getMentorEmail();
  
 		    	for (String s:pending) {
 		    		String msg = "Hi "+v.getCandidateName().toUpperCase()+","+"\r\n"+
@@ -351,7 +361,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		List<VoucherRequest> allrequest = vrepo.findAll();
 		LocalDate today = LocalDate.now();
 		for(VoucherRequest v: allrequest) {
-			if(v.getExamResult().equalsIgnoreCase("pending")&&v.getPlannedExamDate().isBefore(today)) {
+			if(v.getExamResult().equalsIgnoreCase("pending")&&v.getPlannedExamDate().isBefore(today)&&v.getVoucherCode()!=null) {
 				pendingRequests.add(v);
 			}
 		
@@ -359,12 +369,41 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		return pendingRequests;
 }
 
-
+    //method of getting message
 	public Optional<VoucherRequest> findByRequestId(String id) {
 		return vrepo.findById(id);
 	}
 	
-	
+	@Override
+	public VoucherRequest denyRequest(String requestId) throws NoVoucherPresentException {
+			Optional<VoucherRequest> findReqById = vrepo.findById(requestId);
+			if(findReqById.isPresent()) {
+				VoucherRequest re = findReqById.get();
+				
+				String adminMail = "boyinapalli.ravi-chandra@capgemini.com";
+				 String msg = "Dear "+re.getCandidateName().toUpperCase() +
+			                "\n\n" +
+			                "We hope this message finds you well. We regret to inform you that your voucher request for the "+re.getCloudExam().toUpperCase()+" has been denied due to the following reasons:\n\n" +
+			                "1. **Image Format Issue:**\n" +
+			                "   The image you uploaded for the "+re.getCloudPlatform().toUpperCase()+" exam is not in the proper format. Please ensure that the image belongs to the "+re.getCloudExam()+" you have requested for.\n\n" +
+			                "2. **Missing Image:**\n" +
+			                "   You have not provided the latest DoSelect image required for the voucher issuance process. Kindly ensure that you upload the latest image before submitting the voucher request.\n\n" +
+			                "3. **Minimum Score Requirement:**\n" +
+			                "   Unfortunately, your DoSelect score does not meet the minimum requirement to avail a voucher for the "+re.getCloudExam().toUpperCase()+". To be eligible, candidates must achieve a minimum score of 80.\n\n" +
+			                "We understand that this may be disappointing, and we encourage you to review and address the mentioned issues before attempting to request a voucher again. If you have any questions or concerns, feel free to reach out to our support team at "+adminMail+".\n\n" +
+			                "Thank you for your understanding.\n\n" +
+			                "Best regards,\n\n" +
+			                "VOUCHER-CONNECT \n" +
+			                "VOUCHER DASHBOARD TEAM";
+				
+				
+				impl.sendEmail(re.getCandidateEmail(), "VOUCHER CONNECT - Voucher Request Denied", msg);
+				vrepo.delete(re);
+				return re;
+			}else {
+				throw new NoVoucherPresentException();
+			}
+	}
 
 	
 }
