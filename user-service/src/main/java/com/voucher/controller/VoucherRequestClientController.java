@@ -99,12 +99,13 @@ public class VoucherRequestClientController {
     public ResponseEntity<List<VoucherRequest>> pendingRequests() {
 		return voucherReqClient.pendingRequests();
 	}
- 
+    
 	@SecurityRequirement(name = "api")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/denyRequest/{requestId}")
 	public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId) {
 		return voucherReqClient.denyRequest(requestId);
+		//this is used to deny any voucher request
  
 	}
 }
