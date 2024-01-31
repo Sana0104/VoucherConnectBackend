@@ -47,8 +47,10 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	@Autowired
 	EmailRequestImpl impl;
 	
+
 	@Autowired
 	UserClient userClient;
+
 //image get 
 	@Override
 	public VoucherRequest requestVoucher(VoucherRequestDto request, MultipartFile file, String path)
@@ -249,7 +251,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 	}
 
-	@Override //to view all the vouchers 
+	@Override //to view all the voucher requests
 	public List<VoucherRequest> getAllVoucherRequest() throws VoucherNotFoundException {
 		
 		List<VoucherRequest> allRequest = vrepo.findAll();

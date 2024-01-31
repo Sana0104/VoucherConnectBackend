@@ -1,4 +1,4 @@
-package com.va.voucher_request;
+package com.va.voucher_request.service;
  
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +16,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
@@ -35,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.dto.Voucher;
+import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
 import com.va.voucher_request.exceptions.NotAnImageFileException;
@@ -62,6 +68,15 @@ class VoucherServiceTests {
     
     @Mock
     private VoucherClient voucherClient;
+    
+    @AfterEach
+    public void tearDown() throws IOException {
+        // Clean up the directory after each test
+        Files.walk(Paths.get(VALID_PATH))
+                .filter(Files::isRegularFile)
+                .map(Path::toFile)
+                .forEach(File::delete);
+    }
  
  
     @Test
@@ -314,42 +329,98 @@ class VoucherServiceTests {
         assertThrows(NoCompletedVoucherRequestException.class, () -> voucherService.getAllCompletedVoucherRequest());
     }
 
-//    @Test
-//    void testGetAllCompletedVoucherRequest_WithCompletedRequests() throws NoCompletedVoucherRequestException {
-//        // Arrange
-//        VoucherRequestRepository vrepo = mock(VoucherRequestRepository.class);
-//
-//        List<VoucherRequest> allRequests = new ArrayList<>();
-//        allRequests.add(new VoucherRequest(/* initialize with completed request details */));
-//
-//        when(vrepo.findAll()).thenReturn(allRequests);
-//
-//        // Act
-//        List<VoucherRequest> completedRequests = voucherService.getAllCompletedVoucherRequest();
-//
-//        // Assert
-//        assertEquals(allRequests, completedRequests);
-//    }
 
-  
 
-//    @Test
-//    void testPendingRequests() {
-//        // Arrange
-//        VoucherRequestRepository vrepo = mock(VoucherRequestRepository.class);
-//
-//        List<VoucherRequest> allRequests = new ArrayList<>();
-//        allRequests.add(new VoucherRequest(/* initialize with pending request details */));
-//        // Add more pending requests as needed
-//
-//        when(vrepo.findAll()).thenReturn(allRequests);
-//
-//        // Act
-//        List<VoucherRequest> pendingRequests = voucherService.pendingRequests();
-//
-//        // Assert
-//        assertEquals(allRequests, pendingRequests);
-//    }
+
+   
+
+    private static final String VALID_CERTIFICATE_FILENAME = "valid_certificate.pdf";
+    private static final String VALID_PATH = "Images/";
+    private static final String VALID_VOUCHER_CODE = "V007";
+    private static final String INVALID_IMAGE_FORMAT = "invalid_certificate.docx";
+
+    @Test
+    void testUploadCertificateSuccessfully() throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException {
+        // Arrange
+        String voucherCode = "V001";
+
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setVoucherCode(voucherCode);
+        voucherRequest.setExamResult("Pass");
+
+        // Use MockMultipartFile to simulate file upload
+        MockMultipartFile certificateFile = new MockMultipartFile(
+                "file",
+                VALID_CERTIFICATE_FILENAME,
+                "application/pdf",
+                "certificate content".getBytes()
+        );
+
+        when(voucherRepository.findByVoucherCode(voucherCode)).thenReturn(voucherRequest);
+
+        // Act
+        VoucherRequest result = voucherService.uploadCertificate(voucherCode, certificateFile, VALID_PATH);
+
+        
+        // Assert
+        assertNotNull(result);
+        assertEquals(VALID_CERTIFICATE_FILENAME, result.getCertificateFileImage());
+        verify(voucherRepository, times(1)).save(voucherRequest);
+    }
+    
+    @Test
+    void testUploadCertificateWithInvalidImageExtension() throws NotFoundException, ExamNotPassedException, IOException {
+        // Arrange
+        String voucherCode = VALID_VOUCHER_CODE;
+
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setVoucherCode(voucherCode);
+        voucherRequest.setExamResult("Pass");
+
+        // Use MockMultipartFile to simulate an invalid image file (e.g., ".docx")
+        MockMultipartFile invalidImageFile = new MockMultipartFile(
+                "file",
+                INVALID_IMAGE_FORMAT,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "invalid image content".getBytes()
+        );
+
+        when(voucherRepository.findByVoucherCode(voucherCode)).thenReturn(voucherRequest);
+
+        // Act and Assert
+        assertThrows(NotAnImageFileException.class, () -> {
+            voucherService.uploadCertificate(voucherCode, invalidImageFile, VALID_PATH);
+        });
+    }
+    
+    
+    @Test
+    void testUploadCertificateExamNotPassedException() {
+        // Arrange
+        
+
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setVoucherCode(VALID_VOUCHER_CODE);
+        voucherRequest.setExamResult("Fail"); // Simulating exam result as 'Fail'
+
+        // Use MockMultipartFile to simulate file upload
+        MockMultipartFile certificateFile = new MockMultipartFile(
+                "file",
+                VALID_CERTIFICATE_FILENAME,
+                "application/pdf",
+                "certificate content".getBytes()
+        );
+
+        when(voucherRepository.findByVoucherCode(VALID_VOUCHER_CODE)).thenReturn(voucherRequest);
+
+        // Act and Assert
+        assertThrows(ExamNotPassedException.class, () ->
+                voucherService.uploadCertificate(VALID_VOUCHER_CODE, certificateFile, VALID_PATH)
+        );
+
+        // Verify that save method was not called
+        verify(voucherRepository, never()).save(voucherRequest);
+    }
 
 
   
