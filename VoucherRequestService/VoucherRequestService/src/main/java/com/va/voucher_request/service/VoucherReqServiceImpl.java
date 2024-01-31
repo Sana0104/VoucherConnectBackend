@@ -159,6 +159,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 	}
 	//method to upload the certificate once the exam is passed
+	//method2
 	@Override
 	public VoucherRequest uploadCertificate(String voucherCode, MultipartFile certificateFile, String path) throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException {
 	    VoucherRequest voucherRequest = vrepo.findByVoucherCode(voucherCode);
