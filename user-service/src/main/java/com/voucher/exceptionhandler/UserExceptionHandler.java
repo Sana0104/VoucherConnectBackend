@@ -7,6 +7,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -94,6 +96,14 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler{
 		log.error("Validation fails:", ex);
 //        log.error(ex.getMessage());
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(BadCredentialsException.class)
+	public ResponseEntity<ExceptionResponse> handleUserBadCredentialsException(BadCredentialsException ex,WebRequest request)
+	{
+		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "Please Give Correct Email and Password", request.getDescription(false), "Not Found");
+		log.error("Please Give Correct Email and Password");
+		return new ResponseEntity<ExceptionResponse>(exp, HttpStatus.NOT_FOUND);
 	}
 
 }
