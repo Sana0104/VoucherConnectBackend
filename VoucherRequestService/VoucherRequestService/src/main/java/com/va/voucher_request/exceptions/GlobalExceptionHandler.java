@@ -54,9 +54,17 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(exp,HttpStatus.NOT_FOUND);
 	}
 
+	@ExceptionHandler(ExamNotPassedException.class)
+	public ResponseEntity<String> handleExamNotPassedException(ExamNotPassedException  ex ) {
+		return new ResponseEntity<>("Exam result status is not 'Pass'.", HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 	@ExceptionHandler(NoCompletedVoucherRequestException.class)
 	public ResponseEntity<String> handleNoCompletedVoucherRequestException(NoCompletedVoucherRequestException  ex ) {
 		return new ResponseEntity<>("No Completed Voucher Request Present", HttpStatus.NOT_FOUND);
+	}
+	@ExceptionHandler(WrongOptionSelectedException.class)
+	public ResponseEntity<String> handleWrongOptionSelectedException(WrongOptionSelectedException  ex ) {
+		return new ResponseEntity<>("Wrong option selected", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }

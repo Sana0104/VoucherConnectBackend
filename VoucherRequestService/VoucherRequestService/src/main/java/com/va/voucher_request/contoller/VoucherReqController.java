@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,6 +48,7 @@ import com.va.voucher_request.exceptions.ResourceAlreadyExistException;
 import com.va.voucher_request.exceptions.ScoreNotValidException;
 import com.va.voucher_request.exceptions.VoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.VoucherNotFoundException;
+import com.va.voucher_request.exceptions.WrongOptionSelectedException;
 import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
 import com.va.voucher_request.service.EmailRequestImpl;
@@ -177,9 +179,7 @@ public class VoucherReqController {
             
             // Set the appropriate content type based on the file extension
             MediaType mediaType;
-            if (fileExtension.equalsIgnoreCase(".pdf")) {
-                mediaType = MediaType.APPLICATION_PDF;
-            } else if (fileExtension.equalsIgnoreCase(".png") || fileExtension.equalsIgnoreCase(".jpg")|| fileExtension.equalsIgnoreCase(".jpeg")) {
+            if (fileExtension.equalsIgnoreCase(".png") || fileExtension.equalsIgnoreCase(".jpg")|| fileExtension.equalsIgnoreCase(".jpeg")) {
                 mediaType = MediaType.IMAGE_JPEG;
             } else {
                 throw new NotFoundException("Unsupported file format");
@@ -197,7 +197,6 @@ public class VoucherReqController {
             throw new NotFoundException("Certificate not found for request ID: " + id);
         }
     }
-
 
 
 
@@ -225,7 +224,66 @@ public class VoucherReqController {
             
         }
     }
-   //method to deny request
+    
+    // Controller method to provide the validation number for a certificate
+    @PostMapping("/provideValidationNumber/{voucherRequestId}")
+    public ResponseEntity<String> provideValidationNumber(
+            @PathVariable String voucherRequestId,
+            @RequestParam String validationNumber
+    ) {
+        try {
+            vservice.provideValidationNumber(voucherRequestId, validationNumber);
+            return new ResponseEntity<>("Validation number provided successfully", HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+ // Controller method to get the validation number for a certificate
+    @GetMapping("/getValidationNumber/{voucherRequestId}")
+    public ResponseEntity<String> getValidationNumber(@PathVariable String voucherRequestId) {
+        try {
+            String validationNumber = vservice.getValidationNumber(voucherRequestId);
+            return new ResponseEntity<>(validationNumber, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+   
+    
+    //Controller method to post the r2d2 image
+    @PostMapping(value = "/uploadR2d2Screenshot", consumes = {"application/json", "multipart/form-data"}) 
+    public ResponseEntity<VoucherRequest> uploadR2d2Screenshot(@RequestPart("coupon") String vouchercode,@RequestPart("image") MultipartFile file) throws NotFoundException, WrongOptionSelectedException, NotAnImageFileException, IOException {
+		VoucherRequest req = vservice.uploadR2d2Screenshot(vouchercode,file,path);
+		return new ResponseEntity<>(req,HttpStatus.OK);
+    }
+
+  //Controller method to get the r2d2 image
+    @GetMapping(value = "/getR2d2Screenshot/{id}")
+    public ResponseEntity<byte[]> getR2d2Screenshot(@PathVariable("id") String id) throws NotFoundException, IOException {
+    	Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(id);
+
+        if (optionalVoucherRequest.isPresent()) {
+            VoucherRequest voucherRequest = optionalVoucherRequest.get();
+            String imagePathString = voucherRequest.getR2d2Screenshot();
+            Path imagePath = Paths.get(imagePathString);
+
+            // Check if the file exists
+            if (Files.exists(imagePath)) {
+                byte[] imageBytes = Files.readAllBytes(imagePath);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.IMAGE_JPEG); // Adjust the media type based on your image type
+                return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            
+        }
+    }
+
+   //method to deny request 
     @GetMapping("/denyRequest/{requestId}")
     public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId) throws NoVoucherPresentException {
     	VoucherRequest denyRequest = vservice.denyRequest(requestId);

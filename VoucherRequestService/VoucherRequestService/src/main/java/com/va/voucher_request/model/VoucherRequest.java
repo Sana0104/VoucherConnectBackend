@@ -32,6 +32,9 @@ public class VoucherRequest {
     private LocalDate plannedExamDate;
     private String examResult;
     private String certificateFileImage;
+    private String validationNumber;
+    private String r2d2Screenshot;
+    
     
 
     

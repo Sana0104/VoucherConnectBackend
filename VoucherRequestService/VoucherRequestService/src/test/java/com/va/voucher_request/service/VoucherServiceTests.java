@@ -246,8 +246,8 @@ class VoucherServiceTests {
     void testGetAllAssignedVoucherRequestSuccessful() throws VoucherNotFoundException, NoVoucherPresentException {
       
         List<VoucherRequest> allRequests = Arrays.asList(
-                new VoucherRequest("1", "John Doe", "john.doe@example.com", "AWS", "AWS Exam", 85, "image1","V001",  LocalDate.now(), null, null, "Pass", "certificate"),
-                new VoucherRequest("2", "Jane Doe", "jane.doe@example.com", "GCP", "GCP Exam", 90,"image2", "V002", LocalDate.now(), null, null, "Fail", "certificate")
+                new VoucherRequest("1", "John Doe", "john.doe@example.com", "AWS", "AWS Exam", 85, "image1","V001",  LocalDate.now(), null, null, "Pass", "certificate" ,"ValidationID", "ss"),
+                new VoucherRequest("2", "Jane Doe", "jane.doe@example.com", "GCP", "GCP Exam", 90,"image2", "V002", LocalDate.now(), null, null, "Fail", "certificate", "ValidationID", "N/A")
         );
         when(voucherRepository.findAll()).thenReturn(allRequests);
 
@@ -286,7 +286,7 @@ class VoucherServiceTests {
 
         Voucher voucher = new Voucher(voucherId,"AWS","AWS Exam",  "V001", LocalDate.now(), LocalDate.now().plusDays(7), null);
 
-        VoucherRequest voucherRequest = new VoucherRequest("123", "John Doe", "john.doe@example.com", "AWS", "AWS Exam", 85, "image" ,null,  LocalDate.now(), null, null, "Pending", "certificate");
+        VoucherRequest voucherRequest = new VoucherRequest("123", "John Doe", "john.doe@example.com", "AWS", "AWS Exam", 85, "image" ,null,  LocalDate.now(), null, null, "Pending", "certificate", "N/A", "N/A");
 
         when(voucherClient.getVoucherById(voucherId)).thenReturn(ResponseEntity.ok(voucher));
         when(voucherRepository.findById(voucherRequestId)).thenReturn(Optional.of(voucherRequest));

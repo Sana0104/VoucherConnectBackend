@@ -16,6 +16,7 @@ import com.va.voucher_request.exceptions.ResourceAlreadyExistException;
 import com.va.voucher_request.exceptions.ScoreNotValidException;
 import com.va.voucher_request.exceptions.VoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.VoucherNotFoundException;
+import com.va.voucher_request.exceptions.WrongOptionSelectedException;
 import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
 
@@ -46,5 +47,15 @@ public interface VoucherReqService {
 
 	VoucherRequest uploadCertificate(String voucherCode, MultipartFile certificateFile, String path) throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException;
 	VoucherRequest denyRequest(String requestId) throws NoVoucherPresentException;
+
+	
+
+	String getValidationNumber(String voucherRequestId) throws NotFoundException;
+
+
+	VoucherRequest uploadR2d2Screenshot(String voucherCode, MultipartFile screenshot, String path)
+			throws WrongOptionSelectedException, IOException, NotAnImageFileException, NotFoundException;
+
+	void provideValidationNumber(String voucherRequestId, String validationNumber) throws NotFoundException;
 
 }
