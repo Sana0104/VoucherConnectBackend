@@ -19,22 +19,25 @@ public class UserDetailsImpl implements UserDetails {
     private String name;
     
     private String imagePath;
+    
+    private String mentorEmail;
 
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public UserDetailsImpl(String username, String password, String name, String imagePath, Collection<? extends GrantedAuthority> authorities) {
+	public UserDetailsImpl(String username, String password, String name, String imagePath, String mentorEmail,Collection<? extends GrantedAuthority> authorities) {
 
 		this.username = username;
 		this.password = password;
 		this.authorities = authorities;
 		this.name=name;
 		this.imagePath=imagePath;
+		this.mentorEmail=mentorEmail;
 	}
 
 	public static UserDetailsImpl getUser(User user) {
 
 		List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole()));
-		return new UserDetailsImpl(user.getUserEmail(), user.getPassword(), user.getUserName(), user.getImagePath(), authorities);
+		return new UserDetailsImpl(user.getUserEmail(), user.getPassword(), user.getUserName(), user.getImagePath(), user.getMentorEmail(), authorities);
 	}
 
 	@Override
@@ -70,6 +73,15 @@ public class UserDetailsImpl implements UserDetails {
 
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
+	}
+
+	
+	public String getMentorEmail() {
+		return mentorEmail;
+	}
+
+	public void setMentorEmail(String mentorEmail) {
+		this.mentorEmail = mentorEmail;
 	}
 
 	@Override

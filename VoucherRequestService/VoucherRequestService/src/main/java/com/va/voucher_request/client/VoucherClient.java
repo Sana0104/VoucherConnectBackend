@@ -18,3 +18,5 @@ public interface VoucherClient { //feign client interface to communicate with vo
 	public ResponseEntity<Voucher> getVoucherById(@PathVariable String id);
 
 }
+
+

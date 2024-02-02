@@ -46,8 +46,9 @@ public class AuthController {
 		String jwtToken=jwtUtility.generateToken(authentication);
 		Collection<? extends GrantedAuthority> authorities=userDetails.getAuthorities();
 		List<String> li=authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-		JSONResponse jsonResponse=new JSONResponse(jwtToken,userDetails.getUsername(),userDetails.getName(),userDetails.getImagePath(), li);
-		return ResponseEntity.ok(jsonResponse);		
+		JSONResponse jsonResponse=new JSONResponse(jwtToken,userDetails.getUsername(),userDetails.getName(),userDetails.getImagePath(),userDetails.getMentorEmail(), li);
+		return ResponseEntity.ok(jsonResponse);	
+		
 
 	}
 
