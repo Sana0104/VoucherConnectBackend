@@ -23,5 +23,7 @@ public interface VoucherRequestRepository extends MongoRepository<VoucherRequest
 
 	boolean existsByCandidateEmail(String candidateEmail);
 
+	//VoucherRequest save(Optional<VoucherRequest> voucherRequest);
+
 }
 

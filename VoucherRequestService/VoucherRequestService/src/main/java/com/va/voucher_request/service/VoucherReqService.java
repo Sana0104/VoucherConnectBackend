@@ -3,6 +3,7 @@ package com.va.voucher_request.service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,6 +56,12 @@ public interface VoucherReqService {
 
 	VoucherRequest uploadR2d2Screenshot(String voucherCode, MultipartFile screenshot, String path)
 			throws WrongOptionSelectedException, IOException, NotAnImageFileException, NotFoundException;
+
+
+
+
+	VoucherRequest updateField(String voucherRequestId, Map<String, Object> updates)
+			throws NotFoundException, NoSuchFieldException, IllegalAccessException;
 
 	void provideValidationNumber(String voucherRequestId, String validationNumber) throws NotFoundException;
 

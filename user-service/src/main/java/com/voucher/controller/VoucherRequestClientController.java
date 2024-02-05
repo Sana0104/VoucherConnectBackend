@@ -2,7 +2,8 @@ package com.voucher.controller;
  
 import java.time.LocalDate;
 import java.util.List;
- 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.core.io.Resource;
@@ -10,11 +11,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -134,4 +137,41 @@ public class VoucherRequestClientController {
 		//this is used to deny any voucher request
  
 	}
+	
+	@SecurityRequirement(name = "api")
+	@PreAuthorize("hasAnyRole('CANDIDATE')")
+	@PutMapping("/provideValidationNumber/{voucherRequestId}")
+    public ResponseEntity<String> provideValidationNumber(@PathVariable String voucherRequestId, @RequestParam String validationNumber){
+		return voucherReqClient.provideValidationNumber(voucherRequestId, validationNumber);
+	}
+	
+	@SecurityRequirement(name = "api")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping("/getValidationNumber/{voucherRequestId}")
+    public ResponseEntity<String> getValidationNumber(@PathVariable String voucherRequestId){
+    	return voucherReqClient.getValidationNumber(voucherRequestId);
+    }
+    
+    @SecurityRequirement(name = "api")
+	@PreAuthorize("hasAnyRole('CANDIDATE', 'ADMIN')")
+    @PatchMapping("/updateField/{voucherRequestId}")
+    public ResponseEntity<VoucherRequest> updateField(@PathVariable String voucherRequestId,
+                                                     @RequestBody Map<String, Object> updates){
+    	return voucherReqClient.updateField(voucherRequestId, updates);
+    	
+    }
+    
+    @SecurityRequirement(name = "api")
+	@PreAuthorize("hasAnyRole('CANDIDATE')")
+    @PostMapping(value = "/uploadR2d2Screenshot", consumes = {"application/json", "multipart/form-data"}) 
+    public ResponseEntity<VoucherRequest> uploadR2d2Screenshot(@RequestPart("coupon") String vouchercode,@RequestPart("image") MultipartFile file){
+    	return voucherReqClient.uploadR2d2Screenshot(vouchercode, file);
+    }
+    
+    @SecurityRequirement(name = "api")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping(value = "/getR2d2Screenshot/{id}")
+    public ResponseEntity<byte[]> getR2d2Screenshot(@PathVariable("id") String id){
+    	return voucherReqClient.getR2d2Screenshot(id);
+    }
 }

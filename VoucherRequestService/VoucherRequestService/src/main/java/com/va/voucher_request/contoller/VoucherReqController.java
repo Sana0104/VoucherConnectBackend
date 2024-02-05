@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -226,18 +229,20 @@ public class VoucherReqController {
     }
     
     // Controller method to provide the validation number for a certificate
-    @PostMapping("/provideValidationNumber/{voucherRequestId}")
-    public ResponseEntity<String> provideValidationNumber(
-            @PathVariable String voucherRequestId,
-            @RequestParam String validationNumber
-    ) {
+    @PutMapping("/provideValidationNumber/{voucherRequestId}")
+    public ResponseEntity<String> provideValidationNumber(@PathVariable String voucherRequestId, @RequestParam String validationNumber) {
         try {
             vservice.provideValidationNumber(voucherRequestId, validationNumber);
-            return new ResponseEntity<>("Validation number provided successfully", HttpStatus.OK);
+            return new ResponseEntity<>("Validation number: " + validationNumber + " provided successfully" , HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error providing validation number", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
  // Controller method to get the validation number for a certificate
     @GetMapping("/getValidationNumber/{voucherRequestId}")
     public ResponseEntity<String> getValidationNumber(@PathVariable String voucherRequestId) {
@@ -248,7 +253,17 @@ public class VoucherReqController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-
+ 
+    @PatchMapping("/updateField/{voucherRequestId}")
+    public ResponseEntity<VoucherRequest> updateField(@PathVariable String voucherRequestId,
+                                                     @RequestBody Map<String, Object> updates) {
+        try {
+            VoucherRequest updatedVoucherRequest = vservice.updateField(voucherRequestId, updates);
+            return new ResponseEntity<>(updatedVoucherRequest, HttpStatus.OK);
+        } catch (NotFoundException | NoSuchFieldException | IllegalAccessException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
    
     
     //Controller method to post the r2d2 image
@@ -258,7 +273,7 @@ public class VoucherReqController {
 		return new ResponseEntity<>(req,HttpStatus.OK);
     }
 
-  //Controller method to get the r2d2 image
+  //Controller method to get the r2d2 image    
     @GetMapping(value = "/getR2d2Screenshot/{id}")
     public ResponseEntity<byte[]> getR2d2Screenshot(@PathVariable("id") String id) throws NotFoundException, IOException {
     	Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(id);
