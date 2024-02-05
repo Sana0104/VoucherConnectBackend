@@ -3,18 +3,22 @@ package com.voucher.client;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import com.voucher.dto.VoucherRequest;
 import com.voucher.dto.VoucherRequestDto;
@@ -68,4 +72,21 @@ public interface VoucherRequestClient {
        
     @GetMapping("/denyRequest/{requestId}")
     public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId);
+    
+    @PutMapping("/provideValidationNumber/{voucherRequestId}")
+    public ResponseEntity<String> provideValidationNumber(@PathVariable String voucherRequestId, @RequestParam String validationNumber);
+    
+    @GetMapping("/getValidationNumber/{voucherRequestId}")
+    public ResponseEntity<String> getValidationNumber(@PathVariable String voucherRequestId);
+    
+    @PatchMapping("/updateField/{voucherRequestId}")
+    public ResponseEntity<VoucherRequest> updateField(@PathVariable String voucherRequestId,
+                                                     @RequestBody Map<String, Object> updates);
+    
+    @PostMapping(value = "/uploadR2d2Screenshot", consumes = {"application/json", "multipart/form-data"}) 
+    public ResponseEntity<VoucherRequest> uploadR2d2Screenshot(@RequestPart("coupon") String vouchercode,@RequestPart("image") MultipartFile file);
+    
+    @GetMapping(value = "/getR2d2Screenshot/{id}")
+    public ResponseEntity<byte[]> getR2d2Screenshot(@PathVariable("id") String id);
+        
 }
