@@ -149,27 +149,54 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 	}
 
+
+
+
 	@Override // to update the exam exam by the candidate
+
 	public VoucherRequest updateExamResult(String voucherCode, String newExamResult) throws NotFoundException {
+
 		VoucherRequest voucherRequest = vrepo.findByVoucherCode(voucherCode);
+
 		if (voucherRequest != null) {
-			voucherRequest.setExamResult(newExamResult);
-			try {
-				vrepo.save(voucherRequest);
-				// return statement
-				return voucherRequest;
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException("Error saving VoucherRequest");
+
+			if(newExamResult.equalsIgnoreCase("Fail")|| newExamResult.equalsIgnoreCase("Pending due to issue")) {
+
+				voucherRequest.setCertificateFileImage("N/A");
+
+				voucherRequest.setValidationNumber("N/A");
+
+				voucherRequest.setR2d2Screenshot("N/A");
+
+				voucherRequest.setExamResult(newExamResult);
+
 			}
 
+			voucherRequest.setExamResult(newExamResult);
+
+			try {
+
+				vrepo.save(voucherRequest);
+
+				// return statement
+
+				return voucherRequest;
+
+			} catch (Exception e) {
+
+				e.printStackTrace();
+
+				throw new RuntimeException("Error saving VoucherRequest");
+
+			}
+ 
 		} else {
+
 			throw new NotFoundException("No voucher found for voucher code: " + voucherCode);
-
+ 
 		}
-
+ 
 	}
-
 	// method to upload the certificate once the exam is passed
 	// method2
 	@Override
@@ -473,6 +500,11 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		return vrepo.findById(id);
 	}
 
+	
+
+
+	
+	
 	@Override
 	public VoucherRequest denyRequest(String requestId) throws NoVoucherPresentException {
 		Optional<VoucherRequest> findReqById = vrepo.findById(requestId);
