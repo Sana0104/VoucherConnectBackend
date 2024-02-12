@@ -25,7 +25,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.voucher.client.VoucherRequestClient;
 import com.voucher.dto.VoucherRequest;
 import com.voucher.dto.VoucherRequestDto;
- 
+import com.voucher.entity.Candidate;
+import com.voucher.exceptions.CandidateIsNotEligibleException;
+import com.voucher.repository.CandidateRepository;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
  
 @RestController
@@ -35,11 +38,23 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 public class VoucherRequestClientController {
 	@Autowired
 	VoucherRequestClient voucherReqClient;
-	@PostMapping("/voucher")
+	
+	@Autowired
+	CandidateRepository candidateRepo;
+	
 	@PreAuthorize("hasAnyRole('CANDIDATE')")
 	@SecurityRequirement(name = "api")
-    public ResponseEntity<VoucherRequest> requestVoucher(@RequestBody VoucherRequestDto request){
-		return voucherReqClient.requestVoucher(request);
+	@PostMapping(value = "/voucher", consumes = {"application/json", "multipart/form-data"}) //post request to request for the voucher
+    public ResponseEntity<VoucherRequest> requestVoucher(@RequestPart("data") VoucherRequestDto request,@RequestPart("image") MultipartFile file) throws CandidateIsNotEligibleException{
+		
+		Candidate cand = candidateRepo.findByEmail(request.getCandidateEmail());
+		
+		if(cand==null || cand.getStatus().equalsIgnoreCase("Resigned"))
+		{
+			throw new CandidateIsNotEligibleException();
+		}
+		
+		return voucherReqClient.requestVoucher(request, file);
 	}
     @GetMapping("/{candidateEmail}")
     @PreAuthorize("hasAnyRole('CANDIDATE')")

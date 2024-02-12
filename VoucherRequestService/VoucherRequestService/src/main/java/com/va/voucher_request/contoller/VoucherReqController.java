@@ -229,7 +229,7 @@ public class VoucherReqController {
     }
     
     // Controller method to provide the validation number for a certificate
-    @PutMapping("/provideValidationNumber/{voucherRequestId}")
+    @PostMapping("/provideValidationNumber/{voucherRequestId}")
     public ResponseEntity<String> provideValidationNumber(@PathVariable String voucherRequestId, @RequestParam String validationNumber) {
         try {
             vservice.provideValidationNumber(voucherRequestId, validationNumber);
@@ -244,10 +244,10 @@ public class VoucherReqController {
     }
 
  // Controller method to get the validation number for a certificate
-    @GetMapping("/getValidationNumber/{voucherRequestId}")
-    public ResponseEntity<String> getValidationNumber(@PathVariable String voucherRequestId) {
+    @GetMapping("/getValidationNumber/{id}")
+    public ResponseEntity<String> getValidationNumber(@PathVariable String id) {
         try {
-            String validationNumber = vservice.getValidationNumber(voucherRequestId);
+            String validationNumber = vservice.getValidationNumber(id);
             return new ResponseEntity<>(validationNumber, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
