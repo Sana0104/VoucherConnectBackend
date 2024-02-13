@@ -229,7 +229,7 @@ public class VoucherReqController {
     }
     
     // Controller method to provide the validation number for a certificate
-    @PutMapping("/provideValidationNumber/{voucherRequestId}")
+    @PostMapping("/provideValidationNumber/{voucherRequestId}")
     public ResponseEntity<String> provideValidationNumber(@PathVariable String voucherRequestId, @RequestParam String validationNumber) {
         try {
             vservice.provideValidationNumber(voucherRequestId, validationNumber);

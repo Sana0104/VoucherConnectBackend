@@ -149,9 +149,6 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 	}
 
-
-
-
 	@Override // to update the exam exam by the candidate
 
 	public VoucherRequest updateExamResult(String voucherCode, String newExamResult) throws NotFoundException {
@@ -160,7 +157,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 		if (voucherRequest != null) {
 
-			if(newExamResult.equalsIgnoreCase("Fail")|| newExamResult.equalsIgnoreCase("Pending due to issue")) {
+			if (newExamResult.equalsIgnoreCase("Fail") || newExamResult.equalsIgnoreCase("Pending due to issue")) {
 
 				voucherRequest.setCertificateFileImage("N/A");
 
@@ -189,23 +186,22 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 				throw new RuntimeException("Error saving VoucherRequest");
 
 			}
- 
+
 		} else {
 
 			throw new NotFoundException("No voucher found for voucher code: " + voucherCode);
- 
+
 		}
- 
+
 	}
+
 	// method to upload the certificate once the exam is passed
-	// method2
 	@Override
 	public VoucherRequest uploadCertificate(String voucherCode, MultipartFile certificateFile, String path)
 			throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException {
 		VoucherRequest voucherRequest = vrepo.findByVoucherCode(voucherCode);
 
 		if (voucherRequest != null) {
-			
 
 			String certificateFileName = certificateFile.getOriginalFilename();
 
@@ -225,13 +221,13 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 				f.mkdir();
 			}
 
-	        // Save the certificate file and update the certificate path
-	        try (OutputStream outputStream = new FileOutputStream(certificateFilePath)) {
-	            IOUtils.copy(certificateFile.getInputStream(), outputStream);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            throw new RuntimeException("Error saving VoucherRequest");
-	        }
+			// Save the certificate file and update the certificate path
+			try (OutputStream outputStream = new FileOutputStream(certificateFilePath)) {
+				IOUtils.copy(certificateFile.getInputStream(), outputStream);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException("Error saving VoucherRequest");
+			}
 
 			voucherRequest.setCertificateFileImage(certificateFileName);
 
@@ -246,50 +242,28 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 			throw new NotFoundException("No voucher found for voucher code: " + voucherCode);
 		}
 	}
-	
+
 	@Override
 	public void provideValidationNumber(String voucherRequestId, String validationNumber) throws NotFoundException {
-	    // Find the voucher request by ID
-	    VoucherRequest voucherRequest = vrepo.findById(voucherRequestId)
-	            .orElseThrow(() -> new NotFoundException("No voucher found for voucher ID: " + voucherRequestId));
- 
-	    // Set the validation number for the voucher
-	    voucherRequest.setValidationNumber(validationNumber);
- 
-	    // Save the updated voucher request
-	    try {
-	        vrepo.save(voucherRequest);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        throw new RuntimeException("Error saving VoucherRequest");
-	    }
+		// Find the voucher request by ID
+		VoucherRequest voucherRequest = vrepo.findById(voucherRequestId)
+				.orElseThrow(() -> new NotFoundException("No voucher found for voucher ID: " + voucherRequestId));
+
+		// Set the validation number for the voucher
+		voucherRequest.setValidationNumber(validationNumber);
+
+		// Save the updated voucher request
+		try {
+			vrepo.save(voucherRequest);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error saving VoucherRequest");
+		}
 	}
+
 	
-	@Override 
-	public VoucherRequest updateField(String voucherRequestId, Map<String, Object> updates)
-            throws NotFoundException, NoSuchFieldException, IllegalAccessException {
-        // Retrieve the VoucherRequest by ID
-        Optional<VoucherRequest> v = vrepo.findById(voucherRequestId);
-        VoucherRequest voucherRequest = v.get();
-        
-        // Iterate through the updates and set corresponding fields
-        for (Map.Entry<String, Object> entry : updates.entrySet()) {
-            String fieldName = entry.getKey();
-            Object value = entry.getValue();
 
-            // Use reflection to set the field value
-            Field field = VoucherRequest.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(voucherRequest, value);
-        }
-
-        // Save the updated VoucherRequest
-        return vrepo.save(voucherRequest);
-    }
-
-
-
-	@Override     // Method to get the value of validation id as a string from the user
+	@Override // Method to get the value of validation id as a string from the user
 	public String getValidationNumber(String voucherRequestId) throws NotFoundException {
 		Optional<VoucherRequest> optionalVoucherRequest = vrepo.findById(voucherRequestId);
 
@@ -299,8 +273,28 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 			throw new NotFoundException("No voucher found for voucherRequestId: " + voucherRequestId);
 		}
 	}
+	
+	@Override //method to update all the fields in voucher request, except image fields
+	public VoucherRequest updateField(String voucherRequestId, Map<String, Object> updates)
+			throws NotFoundException, NoSuchFieldException, IllegalAccessException {
+		// Retrieve the VoucherRequest by ID
+		Optional<VoucherRequest> v = vrepo.findById(voucherRequestId);
+		VoucherRequest voucherRequest = v.get();
 
+		// Iterate through the updates and set corresponding fields
+		for (Map.Entry<String, Object> entry : updates.entrySet()) {
+			String fieldName = entry.getKey();
+			Object value = entry.getValue();
 
+			// Use reflection to set the field value
+			Field field = VoucherRequest.class.getDeclaredField(fieldName);
+			field.setAccessible(true);
+			field.set(voucherRequest, value);
+		}
+
+		// Save the updated VoucherRequest
+		return vrepo.save(voucherRequest);
+	}
 
 	@Override // method to upload the r2d2 screenshot
 	public VoucherRequest uploadR2d2Screenshot(String voucherCode, MultipartFile screenshot, String path)
@@ -327,14 +321,13 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 				f.mkdir();
 			}
 
-
-	        // Save the certificate file and update the certificate path
-	        try (OutputStream outputStream = new FileOutputStream(screenshotFilePath)) {
-	            IOUtils.copy(screenshot.getInputStream(), outputStream);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            throw new RuntimeException("Error saving VoucherRequest");
-	        }
+			// Save the certificate file and update the certificate path
+			try (OutputStream outputStream = new FileOutputStream(screenshotFilePath)) {
+				IOUtils.copy(screenshot.getInputStream(), outputStream);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException("Error saving VoucherRequest");
+			}
 			voucherRequest.setR2d2Screenshot(screenshotFilePath);
 
 			try {
@@ -500,11 +493,6 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		return vrepo.findById(id);
 	}
 
-	
-
-
-	
-	
 	@Override
 	public VoucherRequest denyRequest(String requestId) throws NoVoucherPresentException {
 		Optional<VoucherRequest> findReqById = vrepo.findById(requestId);

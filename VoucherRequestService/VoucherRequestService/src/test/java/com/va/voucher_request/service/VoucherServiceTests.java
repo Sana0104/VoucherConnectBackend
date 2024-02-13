@@ -334,7 +334,7 @@ class VoucherServiceTests {
 
    
 
-    private static final String VALID_CERTIFICATE_FILENAME = "valid_certificate.pdf";
+    private static final String VALID_CERTIFICATE_FILENAME = "valid_certificate.png";
     private static final String VALID_PATH = "Images/";
     private static final String VALID_VOUCHER_CODE = "V007";
     private static final String INVALID_IMAGE_FORMAT = "invalid_certificate.docx";
@@ -352,7 +352,7 @@ class VoucherServiceTests {
         MockMultipartFile certificateFile = new MockMultipartFile(
                 "file",
                 VALID_CERTIFICATE_FILENAME,
-                "application/pdf",
+                "application/jpeg",
                 "certificate content".getBytes()
         );
 
@@ -395,34 +395,144 @@ class VoucherServiceTests {
     
     
     
+    
     @Test
-    void testUploadCertificateExamNotPassedException() {
+    void testProvideValidationNumberSuccessfully() throws NotFoundException {
         // Arrange
-        
+        String voucherRequestId = "VoucherID123";
+        String validationNumber = "123456";
 
         VoucherRequest voucherRequest = new VoucherRequest();
-        voucherRequest.setVoucherCode(VALID_VOUCHER_CODE);
-        voucherRequest.setExamResult("Fail"); // Simulating exam result as 'Fail'
+        voucherRequest.setId(voucherRequestId);
 
-        // Use MockMultipartFile to simulate file upload
-        MockMultipartFile certificateFile = new MockMultipartFile(
-                "file",
-                VALID_CERTIFICATE_FILENAME,
-                "application/pdf",
-                "certificate content".getBytes()
-        );
+        when(voucherRepository.findById(voucherRequestId)).thenReturn(java.util.Optional.of(voucherRequest));
 
-        when(voucherRepository.findByVoucherCode(VALID_VOUCHER_CODE)).thenReturn(voucherRequest);
+        // Act
+        voucherService.provideValidationNumber(voucherRequestId, validationNumber);
+
+        // Assert
+        verify(voucherRepository, times(1)).save(any(VoucherRequest.class));
+        assertEquals(validationNumber, voucherRequest.getValidationNumber());
+    }
+
+    @Test
+    void testProvideValidationNumberVoucherNotFound() {
+        // Arrange
+        String voucherRequestId = "NonExistentID";
+        String validationNumber = "123456";
+
+        when(voucherRepository.findById(voucherRequestId)).thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class,
+                () -> voucherService.provideValidationNumber(voucherRequestId, validationNumber));
+
+        // Ensure that save method is not called since the voucher is not found
+        verify(voucherRepository, never()).save(any(VoucherRequest.class));
+    }
+    @Test
+    void testGetValidationNumberSuccess() throws NotFoundException {
+        // Arrange
+        String voucherRequestId = "validVoucherRequestId";
+        String expectedValidationNumber = "123456";
+
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setValidationNumber(expectedValidationNumber);
+
+        when(voucherRepository.findById(voucherRequestId)).thenReturn(Optional.of(voucherRequest));
+
+        // Act
+        String actualValidationNumber = voucherService.getValidationNumber(voucherRequestId);
+
+        // Assert
+        assertEquals(expectedValidationNumber, actualValidationNumber);
+    }
+    
+    @Test
+    void testGetValidationNumberNotFound() {
+        // Arrange
+        String voucherRequestId = "nonexistentVoucherRequestId";
+
+        when(voucherRepository.findById(voucherRequestId)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(ExamNotPassedException.class, () ->
-                voucherService.uploadCertificate(VALID_VOUCHER_CODE, certificateFile, VALID_PATH)
-        );
+        assertThrows(NotFoundException.class, () -> voucherService.getValidationNumber(voucherRequestId));
+    }
+    
+    
+    private static final String VALID_SCREENSHOT_FILENAME = "valid_screenshot.png";
+    
+    
+    @Test
+    void testUploadR2d2ScreenshotSuccess() throws Exception {
+        // Arrange
+        String voucherCode = VALID_VOUCHER_CODE;
+
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setVoucherCode(voucherCode);
+
+        MockMultipartFile screenshotFile = new MockMultipartFile(
+                "file",
+                "valid_screenshot.png",
+                "image/png",
+                "screenshot file content".getBytes());
+        
+
+        when(voucherRepository.findByVoucherCode(voucherCode)).thenReturn(voucherRequest);
+
+        // Act
+        VoucherRequest result = voucherService.uploadR2d2Screenshot(voucherCode, screenshotFile, VALID_PATH);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(VALID_PATH + File.separator + VALID_SCREENSHOT_FILENAME, result.getR2d2Screenshot());
+        verify(voucherRepository, times(1)).save(voucherRequest);
+    }
+    
+    @Test
+    void testUploadR2d2ScreenshotWrongFileFormat() {
+        // Arrange
+        String voucherCode = VALID_VOUCHER_CODE;
+
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setVoucherCode(voucherCode);
+
+        MockMultipartFile screenshotFile = new MockMultipartFile(
+                "file",
+                "invalid_screenshot.pdf",
+                "application/pdf",
+                "screenshot file content".getBytes());
+
+        when(voucherRepository.findByVoucherCode(voucherCode)).thenReturn(voucherRequest);
+
+        // Act and Assert
+        assertThrows(NotAnImageFileException.class,
+                () -> voucherService.uploadR2d2Screenshot(voucherCode, screenshotFile, VALID_PATH));
 
         // Verify that save method was not called
         verify(voucherRepository, never()).save(voucherRequest);
     }
 
 
+    @Test
+    void testUploadR2d2ScreenshotNotFound() {
+        // Arrange
+        String voucherCode = "nonexistentVoucherCode";
+
+        when(voucherRepository.findByVoucherCode(voucherCode)).thenReturn(null);
+
+        MockMultipartFile screenshotFile = new MockMultipartFile(
+                "file",
+                "valid_screenshot.png",
+                "image/png",
+                "screenshot file content".getBytes());
+        
+        // Act and Assert
+        assertThrows(NotFoundException.class,
+                () -> voucherService.uploadR2d2Screenshot(voucherCode, screenshotFile, VALID_PATH));
+
+        // Verify that save method was not called
+        verify(voucherRepository, never()).save(any());
+    }
   
 }
