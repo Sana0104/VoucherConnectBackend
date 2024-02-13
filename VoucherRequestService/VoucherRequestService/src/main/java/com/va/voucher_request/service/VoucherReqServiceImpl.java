@@ -40,7 +40,7 @@ import jakarta.mail.MessagingException;
 @EnableFeignClients(basePackages = "com.*")
 public class VoucherReqServiceImpl implements VoucherReqService {
 
-	@Autowired
+	@Autowired 
 	private VoucherRequestRepository vrepo;
 	
 	
