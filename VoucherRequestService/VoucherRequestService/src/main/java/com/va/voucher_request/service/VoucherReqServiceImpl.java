@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.thymeleaf.context.Context;
 
 import com.va.voucher_request.client.UserClient;
 import com.va.voucher_request.client.VoucherClient;
@@ -33,6 +34,8 @@ import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
 import com.va.voucher_request.repo.VoucherRequestRepository;
 
+import jakarta.mail.MessagingException;
+
 @Service
 @EnableFeignClients(basePackages = "com.*")
 public class VoucherReqServiceImpl implements VoucherReqService {
@@ -46,6 +49,9 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	
 	@Autowired
 	EmailRequestImpl impl;
+	
+	@Autowired
+	ThymeleafService service;
 	
 	@Autowired
 	UserClient userClient;
@@ -368,7 +374,22 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 }
 
     //method of getting message
-	public Optional<VoucherRequest> findByRequestId(String id) {
+	public Optional<VoucherRequest> findByRequestId(String id) throws MessagingException {
+		  
+		  if(vrepo.findById(id).isPresent()) {
+			VoucherRequest vr=  vrepo.findById(id).get();
+			Context ctx = new Context();
+			ctx.setVariable("vr", vr);
+			String htmlContent = service.loadHTMLTemplate("emailMsg", ctx);
+			String atch1="src/main/resources/static/Capgemini - AWS Certification Exam Booking Procedure_updated.pdf";
+			String atch2="src/main/resources/static/AWS_Voucher_Code_Reclaim (1).docx";
+			String atch3 = "src/main/resources/static/Steps to upload external certification in R2D2 portal.pdf";
+			List<String> paths=new ArrayList<>();
+			paths.add(atch1);
+			paths.add(atch2);
+			//paths.add(atch3);
+			impl.sendHtmlEmail(vr.getCandidateEmail(), "AWS ASSOCIATE SOLUTION ARCHITECT CERTIFICATION | 100% FREE EXAM VOUCHER NUMBER | ASSIGNED", htmlContent,paths);
+		  }
 		return vrepo.findById(id);
 	}
 	

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voucher Dashboard</title>	
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .yellow-background {
+            background-color: yellow;
+        }
+        
+        .pink-background {
+            background-color: rgb(232, 0, 232);
+        }
+        .support-link {
+            background-color: aqua;
+            color: rgb(111, 111, 206);
+            text-decoration: underline;
+        }
+        .blue-font{
+            color: rgb(16, 114, 225);
+        }
+    </style>
+</head>
+<body>
+    
+        Hi <span th:text="${vr.candidateName}"></span>,
+        <br><br>
+        <span class="yellow-background">Please find the <b>Pearson Exam voucher number : <span th:text="${vr.voucherCode}"></span></b></span>
+        <br><br>
+        <span class="yellow-background"><b>EXAM TO BE SCHEDULED AT THE NEAREST PEARSON VUE CENTRE ONLY.</b></span>
+        <br><br>
+        <b>YOUR NAME IN AWS ACCOUNT AND ID PROOF SHOULD MATCH, ANY DISCRIPANCY IN THE NAME ON ID PROOF WILL RESULT IN CANCELLATION OF EXAM AND VOUCHER.</b><br><br>
+        <span class="yellow-background"><b>Before you proceed with scheduling the exam please read the documents CLEARLY provided in the link <a href="https://outlook.office.com/mail/safelink.html?url=https://capgemini-my.sharepoint.com/:f:/p/p-v_sasirekha/Em9mYyJyATFAhTs7syBqlq0BRZ38K7ieygk4LlY64gX16w?e=Pbr8Qd&CT=1707137740925&OR=OWA-NT&CID=bace4e43-7cc1-3058-1c78-1d73ca1a816c&corid=ab979f5d-4a69-c84f-3df1-68868ab16efa" class="ExamScheduling-link">Exam Scheduling Instruction</a></b></span>
+        <ol>
+            <li>Refer to the word document<b> AWS Voucher Code Reclaim </b>to convert the long code into voucher code using Xvoucher website, raise a ticket in case of any issues related to voucher reach out to <a  class="support-link">support@xvoucher.com</a></li>
+            <li>Refer to the word document: Step for scheduling exam to schedule your AWS Exam online or through the Prometric centre and Video Link :<a href="https://awshelp.xvoucher.com/hc/en-us/articles/5141372336148-Where-is-my-AWS-Voucher-Code"> How to convert the voucher</a></li>
+            <li>Create an AWS account using <b class="yellow-background">Capgemini email ID.</b>[No Personal Account].</li>
+            <li><b>BOOKING THE SLOT FOR THE EXAM</b> should be completed <b>ASAP</b> upon receiving the voucher</li>
+            <li>Make sure to check your account is not blocked before 2 days of the exam scheduled date.</li>
+            <li>In case if you want to reschedule the exam please do it before 48 hours mail and drop a mail to i-Transform team.</li>
+            <li>Recommended to use your <b class="pink-background">PERSONAL LAPTOP</b> for your <b class="pink-background">online exam</b> to avoid technical issues during the exam.</li>
+            <li><b>Recommended to keep <span class="yellow-background">2 Identity Proofs</span>  (PAN/DRIVING LICENSE/PASSPORT) along with you while appearing for Certification exam to avoid cancellation of the exam. At times <span class="yellow-background">Aadhaar card is not accepted by the Procter due to the photographs on Aadhaar.</span></b></li>
+            <li>Web camera should be enabled during the exam and the exam can be done online or through a prometric centre.</li>
+            <li><b>DO NOT USE MOBILE PHONE ONCE YOU START THE EXAM to avoid cancellation of the exam.</b></li><br>
+            <b class="pink-background">After completing the final exam if the result is PASS.<br>  
+           Please drop a mail to <a>dlini-transform@capgemini.com</a> along with Certificate looping your training mentor in CC.</b><br><br>
+          <li><u class="blue-font">if you face any technical challenge during the exam, kindly raise a ticket with Pearson team and get back the voucher and schedule the exam</u></li><br>
+          <u class="support-link"> Support Help Desk : <b><a href="https://home.pearsonvue.com/Test-takers/Resources.aspx">https://home.pearsonvue.com/Test-takers/Resources.aspx</a></b></u>r<br>
+          <u class="blue-font">PSI : aws.psisupport@psionline.com<br>
+          Pearson : Contact Pearson VUE  <a href="">pvapcustomerservice@pearson.com</a>
+         <br> Try connecting with Pearson Vue customer care no: 000800440183</u>
+        </ol>
+        <b><u class="blue-font">Note : Our i-Tranform AWS Co-Ordinator will be in constant touch with you for taking the updates. Hence request you to provide the information requested.</u></b>
+       <br><br>
+       <b>All the best 😊</b><br>
+       Thanks and Regards,<br>
+       <b>VOUCHER DASHBOARD TEAM</b><br>
+       
+        
+
+  
+</body>
+</html>

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,13 +35,17 @@ public class User {
 	@NotNull
 	@NotBlank
 	private String userName;
-	@Email(message = "Please Provide Correct Email")
+	@Email(message = "Please Provide Correct Email",regexp = "^[a-zA-Z0-9._%+-]+@capgemini\\.com$"
+			+ "")
 	private String userEmail;
-	@NotNull
+	@NotBlank
 	private String password;
-	@Email(message = "Please Provide Correct Email")
+	
+	@Email(message = "Please Provide Correct Mentor Email",regexp = "^[a-zA-Z0-9._%+-]+@capgemini\\.com$"
+			+ "")
 	private String mentorEmail;
 	private String imagePath;
+	@Pattern(regexp = "ROLE_CANDIDATE|ROLE_ADMIN", message = "Please provide a valid Role")
 	private String role;
 	
 	

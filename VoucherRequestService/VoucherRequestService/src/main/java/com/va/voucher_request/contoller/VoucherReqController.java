@@ -52,6 +52,8 @@ import com.va.voucher_request.model.VoucherRequestDto;
 import com.va.voucher_request.service.EmailRequestImpl;
 import com.va.voucher_request.service.VoucherReqServiceImpl;
 
+import jakarta.mail.MessagingException;
+
 @RestController
 @RequestMapping("/requests")
 @CrossOrigin("*")
@@ -164,7 +166,7 @@ public class VoucherReqController {
     }
 
     @GetMapping(value = "/getCertificate/{id}")
-    public ResponseEntity<Resource> getCertificate(@PathVariable("id") String id) throws NotFoundException, IOException {
+    public ResponseEntity<Resource> getCertificate(@PathVariable("id") String id) throws NotFoundException, IOException, MessagingException {
         Optional<VoucherRequest> voucherRequest = vservice.findByRequestId(id);
         
         if (voucherRequest.isPresent() && voucherRequest.get().getCertificateFileImage() != null) {
@@ -202,7 +204,7 @@ public class VoucherReqController {
 
 
     @GetMapping("/getDoSelectImage/{id}")
-    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id) throws IOException {
+    public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id) throws IOException, MessagingException {
         // Find the voucher request by ID
         Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(id);
 
@@ -229,6 +231,14 @@ public class VoucherReqController {
     public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId) throws NoVoucherPresentException {
     	VoucherRequest denyRequest = vservice.denyRequest(requestId);
 		return new ResponseEntity<VoucherRequest>(denyRequest, HttpStatus.OK);
+    	
+    }
+    
+    @GetMapping("/findById/{id}")
+    public Optional<VoucherRequest> findByRequestId(@PathVariable String id) throws MessagingException {
+    	
+    	
+		return vservice.findByRequestId(id);
     	
     }
 }

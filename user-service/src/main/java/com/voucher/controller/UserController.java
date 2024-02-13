@@ -28,6 +28,8 @@ import com.voucher.exceptions.UserAlreadyExistException;
 import com.voucher.exceptions.UserIsNotPresentWithEmailException;
 import com.voucher.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/user")
 @CrossOrigin("*")
@@ -40,7 +42,7 @@ public class UserController {
 	private String path;
 	
 	@PostMapping("/register")
-	public ResponseEntity<User> register(@RequestBody User user) throws UserAlreadyExistException
+	public ResponseEntity<User> register(@Valid @RequestBody User user) throws UserAlreadyExistException
 	{
 		Optional<User> us = service.register(user);
 		return new ResponseEntity<User>(us.get(), HttpStatus.OK);
