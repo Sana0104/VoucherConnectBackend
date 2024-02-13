@@ -53,6 +53,42 @@ public class GlobalExceptionHandler {
 		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), ex.getMessage(), request.getDescription(false), "Already Exist");
 		return new ResponseEntity<>(exp,HttpStatus.NOT_FOUND);
 	}
+	
+	
+	@ExceptionHandler(NoCandidateToUpDateException.class)
+	public ResponseEntity<ExceptionResponse> handleNoCandidateToUpDateException(NoCandidateToUpDateException ex,WebRequest request)
+	{
+		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "No changes found to add or update data in the database", request.getDescription(false), "Not Found");
+//		log.error("No changes found to add or update data in the database");
+		return new ResponseEntity<ExceptionResponse>(exp, HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@ExceptionHandler(NoCandidatePresentException.class)
+	public ResponseEntity<ExceptionResponse> handleNoCandidatePresentException(NoCandidatePresentException ex,WebRequest request)
+	{
+		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "No Candidates found", request.getDescription(false), "Not Found");
+//		log.error("No Candidates found");
+		return new ResponseEntity<ExceptionResponse>(exp, HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@ExceptionHandler(GivenFileIsNotExcelFileException.class)
+	public ResponseEntity<ExceptionResponse> handleGivenFileIsNotExcelFileException(GivenFileIsNotExcelFileException ex,WebRequest request)
+	{
+		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "Choosen File is not an Excel file", request.getDescription(false), "Not Found");
+//		log.error("Choosen File is not an Excel file");
+		return new ResponseEntity<ExceptionResponse>(exp, HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@ExceptionHandler(CandidateIsNotEligibleException.class)
+	public ResponseEntity<ExceptionResponse> handleCandidateIsNotEligibleException(CandidateIsNotEligibleException ex,WebRequest request)
+	{
+		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "You are not eligible for the voucher", request.getDescription(false), "Not Found");
+//		log.error("candidate is not eligible for the voucher");
+		return new ResponseEntity<ExceptionResponse>(exp, HttpStatus.NOT_FOUND);
+	}
 
 	@ExceptionHandler(ExamNotPassedException.class)
 	public ResponseEntity<String> handleExamNotPassedException(ExamNotPassedException  ex ) {

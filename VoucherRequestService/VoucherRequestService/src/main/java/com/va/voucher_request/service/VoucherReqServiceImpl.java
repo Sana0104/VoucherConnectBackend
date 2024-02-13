@@ -101,8 +101,6 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 			if (!f.exists()) {
 				// If not exist, then make this directory
 				f.mkdir();
-				
-				
 			}
 
 			// File copy
@@ -292,13 +290,13 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 
 	@Override     // Method to get the value of validation id as a string from the user
-	public String getValidationNumber(String id) throws NotFoundException {
-		Optional<VoucherRequest> optionalVoucherRequest = vrepo.findById(id);
+	public String getValidationNumber(String voucherRequestId) throws NotFoundException {
+		Optional<VoucherRequest> optionalVoucherRequest = vrepo.findById(voucherRequestId);
 
 		if (optionalVoucherRequest.isPresent()) {
 			return optionalVoucherRequest.get().getValidationNumber();
 		} else {
-			throw new NotFoundException("No voucher found for voucherRequestId: " + id);
+			throw new NotFoundException("No voucher found for voucherRequestId: " + voucherRequestId);
 		}
 	}
 

@@ -1,5 +1,4 @@
-package com.voucher.entity;
-
+package com.va.voucher_request.model;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;

@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,18 +30,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
+
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.dto.Voucher;
+import com.va.voucher_request.exceptions.CandidateIsNotEligibleException;
 import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
@@ -52,8 +45,10 @@ import com.va.voucher_request.exceptions.ScoreNotValidException;
 import com.va.voucher_request.exceptions.VoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.VoucherNotFoundException;
 import com.va.voucher_request.exceptions.WrongOptionSelectedException;
+import com.va.voucher_request.model.Candidate;
 import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
+import com.va.voucher_request.repo.CandidateRepository;
 import com.va.voucher_request.service.EmailRequestImpl;
 import com.va.voucher_request.service.VoucherReqServiceImpl;
 
@@ -71,11 +66,21 @@ public class VoucherReqController {
 	@Autowired
 	VoucherClient voucherClient;
 	
+	@Autowired
+	CandidateRepository candidateRepo;
+	
 	@Value("${project.image}")
 	private String path;
 	
 	@PostMapping(value = "/voucher", consumes = {"application/json", "multipart/form-data"}) //post request to request for the voucher
-    public ResponseEntity<VoucherRequest> requestVoucher(@RequestPart("data") VoucherRequestDto request,@RequestPart("image") MultipartFile file) throws ScoreNotValidException, ResourceAlreadyExistException, NotAnImageFileException, IOException {
+    public ResponseEntity<VoucherRequest> requestVoucher(@RequestPart("data") VoucherRequestDto request,@RequestPart("image") MultipartFile file) throws ScoreNotValidException, ResourceAlreadyExistException, NotAnImageFileException, IOException, CandidateIsNotEligibleException {
+		Candidate cand = candidateRepo.findByEmail(request.getCandidateEmail());
+		
+		if(cand==null || cand.getStatus().equalsIgnoreCase("Resigned"))
+		{
+			throw new CandidateIsNotEligibleException();
+		}
+		
 		VoucherRequest req = vservice.requestVoucher(request,file,path);
 		return new ResponseEntity<>(req,HttpStatus.OK);
     }
@@ -229,7 +234,7 @@ public class VoucherReqController {
     }
     
     // Controller method to provide the validation number for a certificate
-    @PostMapping("/provideValidationNumber/{voucherRequestId}")
+    @PutMapping("/provideValidationNumber/{voucherRequestId}")
     public ResponseEntity<String> provideValidationNumber(@PathVariable String voucherRequestId, @RequestParam String validationNumber) {
         try {
             vservice.provideValidationNumber(voucherRequestId, validationNumber);
@@ -244,10 +249,10 @@ public class VoucherReqController {
     }
 
  // Controller method to get the validation number for a certificate
-    @GetMapping("/getValidationNumber/{id}")
-    public ResponseEntity<String> getValidationNumber(@PathVariable String id) {
+    @GetMapping("/getValidationNumber/{voucherRequestId}")
+    public ResponseEntity<String> getValidationNumber(@PathVariable String voucherRequestId) {
         try {
-            String validationNumber = vservice.getValidationNumber(id);
+            String validationNumber = vservice.getValidationNumber(voucherRequestId);
             return new ResponseEntity<>(validationNumber, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
