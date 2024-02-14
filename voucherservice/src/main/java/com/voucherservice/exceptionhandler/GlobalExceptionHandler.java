@@ -1,6 +1,7 @@
 package com.voucherservice.exceptionhandler;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.voucherservice.entity.Voucher;
 import com.voucherservice.exception.DataIsNotInsertedException;
 import com.voucherservice.exception.GivenFileIsNotExcelFileException;
 import com.voucherservice.exception.NoVoucherPresentException;
@@ -38,11 +40,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
 	}
 	
 	@ExceptionHandler(NoVoucherPresentException.class)
-	public ResponseEntity<ExceptionResponse> handleNoVoucherPresentException(NoVoucherPresentException ex, WebRequest request)
-	{
-		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "No Voucher is Present", request.getDescription(false), "Not Found");
-		return new ResponseEntity<ExceptionResponse>(exp, HttpStatus.NOT_FOUND);
-	}
+    public ResponseEntity<Object> handleNoVoucherPresentException(NoVoucherPresentException ex) {
+        return ResponseEntity.ok().body(new ArrayList<Voucher>());
+    }
 	
 	@ExceptionHandler(TheseDataIsAlreadyPresentException.class)
 	public ResponseEntity<ExceptionResponse> handleTheseDataIsAlreadyPresentException(TheseDataIsAlreadyPresentException ex, WebRequest request)

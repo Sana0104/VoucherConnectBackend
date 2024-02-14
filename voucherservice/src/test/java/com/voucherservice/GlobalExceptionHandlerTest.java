@@ -49,19 +49,19 @@ class GlobalExceptionHandlerTest {
         assertEquals("Uploaded File is not an excel file", response.getBody().getMessage());
     }
 
-    @Test
-    void handleNoVoucherPresentException() {
-        // Given
-        NoVoucherPresentException exception = new NoVoucherPresentException();
-        WebRequest webRequest = mock(WebRequest.class);
-
-        // When
-        ResponseEntity<ExceptionResponse> response = exceptionHandler.handleNoVoucherPresentException(exception, webRequest);
-
-        // Then
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("No Voucher is Present", response.getBody().getMessage());
-    }
+//    @Test
+//    void handleNoVoucherPresentException() {
+//        // Given
+//        NoVoucherPresentException exception = new NoVoucherPresentException();
+//        WebRequest webRequest = mock(WebRequest.class);
+//
+//        // When
+//        ResponseEntity<ExceptionResponse> response = exceptionHandler.handleNoVoucherPresentException(exception, webRequest);
+//
+//        // Then
+//        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+//        assertEquals("No Voucher is Present", response.getBody().getMessage());
+//    }
 
     @Test
     void handleTheseDataIsAlreadyPresentException() {

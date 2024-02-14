@@ -7,6 +7,11 @@ spring:
       database: vouchers
   application:
     name: VOUCHER-REQUEST
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
   mail:
     host: smtp.gmail.com
     port: 587

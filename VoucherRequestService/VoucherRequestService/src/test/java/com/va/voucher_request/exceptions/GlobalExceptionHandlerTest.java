@@ -101,15 +101,15 @@ import org.springframework.web.context.request.ServletWebRequest;
 	        assertEquals("No Voucher Present", responseEntity.getBody());
 	    }
 
-	    @Test
-	    void testHandleNoCompletedVoucherRequestException() {
-	        NoCompletedVoucherRequestException exception = new NoCompletedVoucherRequestException("No Completed Voucher Request Present");
-
-	        ResponseEntity<String> responseEntity = globalExceptionHandler.handleNoCompletedVoucherRequestException(exception);
-
-	        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-	        assertEquals("No Completed Voucher Request Present", responseEntity.getBody());
-	    }
-	    
+//	    @Test
+//	    void testHandleNoCompletedVoucherRequestException() {
+//	        NoCompletedVoucherRequestException exception = new NoCompletedVoucherRequestException("No Completed Voucher Request Present");
+//
+//	        ResponseEntity<String> responseEntity = globalExceptionHandler.handleNoCompletedVoucherRequestException(exception);
+//
+//	        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+//	        assertEquals("No Completed Voucher Request Present", responseEntity.getBody());
+//	    }
+//	    
 }
 

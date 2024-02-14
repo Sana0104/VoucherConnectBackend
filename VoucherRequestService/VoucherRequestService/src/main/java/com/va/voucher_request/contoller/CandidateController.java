@@ -1,4 +1,4 @@
-package com.voucher.controller;
+package com.va.voucher_request.contoller;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.voucher.entity.Candidate;
-import com.voucher.exceptions.GivenFileIsNotExcelFileException;
-import com.voucher.exceptions.NoCandidatePresentException;
-import com.voucher.exceptions.NoCandidateToUpDateException;
-import com.voucher.helper.ExcelHelper;
-import com.voucher.service.CandidateService;
+import com.va.voucher_request.exceptions.GivenFileIsNotExcelFileException;
+import com.va.voucher_request.exceptions.NoCandidatePresentException;
+import com.va.voucher_request.exceptions.NoCandidateToUpDateException;
+import com.va.voucher_request.helper.ExcelHelper;
+import com.va.voucher_request.model.Candidate;
+import com.va.voucher_request.service.CandidateService;
 
 @RestController
 @RequestMapping("/candidate")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin("*")
 public class CandidateController {
 	
 	@Autowired
