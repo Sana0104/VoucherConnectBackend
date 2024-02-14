@@ -298,7 +298,7 @@ public class VoucherReqController {
 				headers.setContentType(MediaType.IMAGE_JPEG); // Adjust the media type based on your image type
 				return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
 			} else {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				throw new NotFoundException("R2D2 ScreenShot not found for request ID: " + id);
 			}
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
