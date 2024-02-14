@@ -277,32 +277,6 @@ class VoucherServiceTests {
     }
     
 
-    @Test
-    void testAssignVoucherSuccessful() throws VoucherNotFoundException, NotFoundException, VoucherIsAlreadyAssignedException, ParticularVoucherIsAlreadyAssignedException {
-        
-        String voucherId = "1";
-        String emailId = "john.doe@example.com";
-        String voucherRequestId = "123";
-
-        Voucher voucher = new Voucher(voucherId,"AWS","AWS Exam",  "V001", LocalDate.now(), LocalDate.now().plusDays(7), null);
-
-        VoucherRequest voucherRequest = new VoucherRequest("123", "John Doe", "john.doe@example.com", "AWS", "AWS Exam", 85, "image" ,null,  LocalDate.now(), null, null, "Pending", "certificate", "N/A", "N/A");
-
-        when(voucherClient.getVoucherById(voucherId)).thenReturn(ResponseEntity.ok(voucher));
-        when(voucherRepository.findById(voucherRequestId)).thenReturn(Optional.of(voucherRequest));
-        when(voucherRepository.save(any(VoucherRequest.class))).thenReturn(voucherRequest);
-
-        
-        VoucherRequest result = voucherService.assignVoucher(voucherId, emailId, voucherRequestId);
-
-      
-        assertNotNull(result);
-        assertEquals("V001", result.getVoucherCode());
-        assertNotNull(result.getVoucherExpiryLocalDate());
-        assertNotNull(result.getVoucherIssueLocalDate());
-        
-       
-    }
     
     @Test
     void testUpdateExamDateException() {

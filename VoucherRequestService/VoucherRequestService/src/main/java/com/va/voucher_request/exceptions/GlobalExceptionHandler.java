@@ -1,12 +1,15 @@
 package com.va.voucher_request.exceptions;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+
+import com.va.voucher_request.model.VoucherRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -85,8 +88,13 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(CandidateIsNotEligibleException.class)
 	public ResponseEntity<ExceptionResponse> handleCandidateIsNotEligibleException(CandidateIsNotEligibleException ex,WebRequest request)
 	{
-		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "You are not eligible for the voucher", request.getDescription(false), "Not Found");
-//		log.error("candidate is not eligible for the voucher");
+		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "You are not eligible for the voucher as you have resigned.", request.getDescription(false), "Not Found");
+		return new ResponseEntity<ExceptionResponse>(exp, HttpStatus.NOT_FOUND);
+	}
+	@ExceptionHandler(CandidateNotFoundException.class)
+	public ResponseEntity<ExceptionResponse> handleCandidateNotFoundException(CandidateNotFoundException ex,WebRequest request)
+	{
+		ExceptionResponse exp = new ExceptionResponse(LocalDate.now(), "You are not eligible for the voucher because you do not belong to this Business Unit.", request.getDescription(false), "Not Found");
 		return new ResponseEntity<ExceptionResponse>(exp, HttpStatus.NOT_FOUND);
 	}
 
@@ -94,10 +102,12 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<String> handleExamNotPassedException(ExamNotPassedException  ex ) {
 		return new ResponseEntity<>("Exam result status is not 'Pass'.", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+
 	@ExceptionHandler(NoCompletedVoucherRequestException.class)
-	public ResponseEntity<String> handleNoCompletedVoucherRequestException(NoCompletedVoucherRequestException  ex ) {
-		return new ResponseEntity<>("No Completed Voucher Request Present", HttpStatus.NOT_FOUND);
-	}
+    public ResponseEntity<Object> handleNoCompletedVoucherRequestException(NoCompletedVoucherRequestException ex) {
+        return ResponseEntity.ok().body(new ArrayList<VoucherRequest>());
+    }
+	
 	@ExceptionHandler(WrongOptionSelectedException.class)
 	public ResponseEntity<String> handleWrongOptionSelectedException(WrongOptionSelectedException  ex ) {
 		return new ResponseEntity<>("Wrong option selected", HttpStatus.INTERNAL_SERVER_ERROR);
