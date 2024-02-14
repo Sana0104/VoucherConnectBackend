@@ -53,6 +53,8 @@ import com.va.voucher_request.repo.CandidateRepository;
 import com.va.voucher_request.service.EmailRequestImpl;
 import com.va.voucher_request.service.VoucherReqServiceImpl;
 
+import jakarta.mail.MessagingException;
+
 @RestController
 @RequestMapping("/requests")
 @CrossOrigin("*")
@@ -113,16 +115,10 @@ public class VoucherReqController {
 
 	public ResponseEntity<VoucherRequest> assignVoucher(@PathVariable String voucherId, @PathVariable String emailId,
 			@PathVariable String voucherrequestId) throws NotFoundException, VoucherNotFoundException,
-			VoucherIsAlreadyAssignedException, ParticularVoucherIsAlreadyAssignedException {
+			VoucherIsAlreadyAssignedException, ParticularVoucherIsAlreadyAssignedException, MessagingException {
 		Voucher voucher = voucherClient.getVoucherById(voucherId).getBody();
 		VoucherRequest request = vservice.assignVoucher(voucherId, emailId, voucherrequestId);
-		String msg = "Hi " + request.getCandidateName() + ",\r\n" + "\r\n"
-				+ "Please find the Pearson Exam voucher code for " + voucher.getExamName() + ": "
-				+ voucher.getVoucherCode() + " [Please schedule the exam directly without converting.]\r\n" + "\r\n"
-				+ "EXAM TO BE SCHEDULED AT THE NEAREST PEARSON VUE CENTRE ONLY. \r\n" + "\r\n"
-				+ "YOUR NAME IN AWS ACCOUNT AND ID PROOF SHOULD MATCH, ANY DISCREPANCY IN THE NAME ON ID PROOF WILL RESULT IN CANCELLATION OF EXAM AND VOUCHER.\r\n"
-				+ " " + "\r\n All the best 😊" + "\r\n Thanks and Regards," + "\r\nTulsi Rao";
-		impl.sendEmail(emailId, voucher.getCloudPlatform() + " Voucher ", msg);
+		
 		return new ResponseEntity<>(request, HttpStatus.OK);
 
 	}
@@ -179,7 +175,7 @@ public class VoucherReqController {
 
 	@GetMapping(value = "/getCertificate/{id}")
 	public ResponseEntity<Resource> getCertificate(@PathVariable("id") String id)
-			throws NotFoundException, IOException {
+			throws NotFoundException, IOException, MessagingException {
 		Optional<VoucherRequest> voucherRequest = vservice.findByRequestId(id);
 
 		if (voucherRequest.isPresent() && voucherRequest.get().getCertificateFileImage() != null) {
@@ -212,7 +208,7 @@ public class VoucherReqController {
 	}
 
 	@GetMapping("/getDoSelectImage/{id}")
-	public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id) throws IOException {
+	public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id) throws IOException, MessagingException {
 		// Find the voucher request by ID
 		Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(id);
 
@@ -287,7 +283,7 @@ public class VoucherReqController {
 	// Controller method to get the r2d2 image
 	@GetMapping(value = "/getR2d2Screenshot/{id}")
 	public ResponseEntity<byte[]> getR2d2Screenshot(@PathVariable("id") String id)
-			throws NotFoundException, IOException {
+			throws NotFoundException, IOException, MessagingException {
 		Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(id);
 
 		if (optionalVoucherRequest.isPresent()) {
@@ -316,5 +312,11 @@ public class VoucherReqController {
 		VoucherRequest denyRequest = vservice.denyRequest(requestId);
 		return new ResponseEntity<VoucherRequest>(denyRequest, HttpStatus.OK);
 
+	}
+	@GetMapping("/findById/{id}")
+	public Optional<VoucherRequest> findByRequestId(@PathVariable String id) throws MessagingException {
+		
+		return vservice.findByRequestId(id);
+		
 	}
 }

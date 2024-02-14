@@ -21,6 +21,8 @@ import com.va.voucher_request.exceptions.WrongOptionSelectedException;
 import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
 
+import jakarta.mail.MessagingException;
+
 public interface VoucherReqService { 
 	
 	VoucherRequest requestVoucher(VoucherRequestDto request,MultipartFile file,String path) throws ScoreNotValidException, ResourceAlreadyExistException,NotAnImageFileException,IOException;
@@ -32,7 +34,7 @@ public interface VoucherReqService {
 	
 	 VoucherRequest updateExamResult(String voucherCode, String newExamResult) throws NotFoundException;
 	 
-	 VoucherRequest assignVoucher(String voucherId,String emailId,String voucherrequestId) throws VoucherNotFoundException, NotFoundException, VoucherIsAlreadyAssignedException, ParticularVoucherIsAlreadyAssignedException;
+	 VoucherRequest assignVoucher(String voucherId,String emailId,String voucherrequestId) throws VoucherNotFoundException, NotFoundException, VoucherIsAlreadyAssignedException, ParticularVoucherIsAlreadyAssignedException, MessagingException;
 	 
 	 List<VoucherRequest> getAllVoucherRequest() throws VoucherNotFoundException;
 	 
