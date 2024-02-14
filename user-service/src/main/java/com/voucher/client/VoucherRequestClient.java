@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import com.voucher.dto.VoucherRequest;
 import com.voucher.dto.VoucherRequestDto;
 import com.voucher.errordecoder.CustomErrorDecoder;
@@ -27,8 +26,8 @@ import com.voucher.errordecoder.CustomErrorDecoder;
 @FeignClient(url = "http://localhost:8085/requests",name = "voucher-request",configuration = CustomErrorDecoder.class)
 public interface VoucherRequestClient {
 	
-	@PostMapping("/voucher")
-    public ResponseEntity<VoucherRequest> requestVoucher(@RequestBody VoucherRequestDto request);
+	@PostMapping(value = "/voucher", consumes = {"application/json", "multipart/form-data"}) //post request to request for the voucher
+    public ResponseEntity<VoucherRequest> requestVoucher(@RequestPart("data") VoucherRequestDto request,@RequestPart("image") MultipartFile file);
 	
     @GetMapping("/{candidateEmail}")
     public ResponseEntity<List<VoucherRequest>> getAllVouchersByCandidateEmail(@PathVariable String candidateEmail);

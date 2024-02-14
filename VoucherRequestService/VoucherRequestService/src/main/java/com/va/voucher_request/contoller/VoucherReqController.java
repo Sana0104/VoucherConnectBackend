@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -244,10 +245,10 @@ public class VoucherReqController {
     }
 
  // Controller method to get the validation number for a certificate
-    @GetMapping("/getValidationNumber/{voucherRequestId}")
-    public ResponseEntity<String> getValidationNumber(@PathVariable String voucherRequestId) {
+    @GetMapping("/getValidationNumber/{id}")
+    public ResponseEntity<String> getValidationNumber(@PathVariable String id) {
         try {
-            String validationNumber = vservice.getValidationNumber(voucherRequestId);
+            String validationNumber = vservice.getValidationNumber(id);
             return new ResponseEntity<>(validationNumber, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -290,7 +291,7 @@ public class VoucherReqController {
                 headers.setContentType(MediaType.IMAGE_JPEG); // Adjust the media type based on your image type
                 return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            	throw new NotFoundException("R2D2 ScreenShot not found for request ID: " + id);
             }
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -306,4 +307,5 @@ public class VoucherReqController {
 		
     	
     }
+    
 }
