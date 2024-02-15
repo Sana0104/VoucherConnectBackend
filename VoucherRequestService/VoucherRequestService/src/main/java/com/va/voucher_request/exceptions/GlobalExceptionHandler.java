@@ -24,8 +24,8 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	@ExceptionHandler(VoucherNotFoundException.class)
-	public ResponseEntity<String> handleVoucherNotFoundException(VoucherNotFoundException ex) {
-		return new ResponseEntity<>("Voucher Not Found With This Id", HttpStatus.NOT_FOUND);
+	public ResponseEntity<Object> handleVoucherNotFoundException(VoucherNotFoundException ex) {
+		return ResponseEntity.ok().body(new ArrayList<VoucherRequest>());
 	}
 	
 	@ExceptionHandler(ParticularVoucherIsAlreadyAssignedException.class)
@@ -39,10 +39,9 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(NoVoucherPresentException.class)
-	public ResponseEntity<String> handleNoVoucherPresentException(NoVoucherPresentException ex) {
-		return new ResponseEntity<>("No Voucher Present", HttpStatus.NOT_FOUND);
+	public ResponseEntity<Object> handleNoVoucherPresentException(NoVoucherPresentException ex) {
+		return ResponseEntity.ok().body(new ArrayList<VoucherRequest>());
 	}
-	
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ExceptionResponse> handleResourceNotFoundException(ResourceNotFoundException ex , WebRequest request)
 	{

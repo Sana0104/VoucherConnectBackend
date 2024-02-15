@@ -102,7 +102,7 @@ public class VoucherReqController {
 		return new ResponseEntity<>(req, HttpStatus.OK);
 	}
 
-	@PutMapping("/{voucherCode}/{newExamResult}") // put request to update the exam result
+	@PutMapping("/updateExamResult/{voucherCode}/{newExamResult}") // put request to update the exam result
 	public ResponseEntity<VoucherRequest> updateResultStatus(@PathVariable String voucherCode,
 			@PathVariable String newExamResult) throws NotFoundException {
 
@@ -307,16 +307,17 @@ public class VoucherReqController {
 	}
 
 	// method to deny request
-	@GetMapping("/denyRequest/{requestId}")
-	public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId) throws NoVoucherPresentException {
-		VoucherRequest denyRequest = vservice.denyRequest(requestId);
-		return new ResponseEntity<VoucherRequest>(denyRequest, HttpStatus.OK);
-
-	}
+	
 	@GetMapping("/findById/{id}")
 	public Optional<VoucherRequest> findByRequestId(@PathVariable String id) throws MessagingException {
 		
 		return vservice.findByRequestId(id);
 		
+	}
+	@GetMapping("/denyRequest/{requestId}")
+	public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId, @RequestParam("reason") String reason) throws NoVoucherPresentException {
+		VoucherRequest denyRequest = vservice.denyRequest(requestId, reason);
+		return new ResponseEntity<VoucherRequest>(denyRequest, HttpStatus.OK);
+ 
 	}
 }

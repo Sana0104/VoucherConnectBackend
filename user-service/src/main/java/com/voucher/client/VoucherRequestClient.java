@@ -37,7 +37,7 @@ public interface VoucherRequestClient {
 	public ResponseEntity<VoucherRequest> updateExamDate(@PathVariable String voucherCode,@PathVariable LocalDate newExamDate);
 		
 
-    @PutMapping("/{voucherCode}/{newExamResult}")
+    @PutMapping("/updateExamResult/{voucherCode}/{newExamResult}")
     public ResponseEntity<VoucherRequest> updateResultStatus( @PathVariable String voucherCode, @PathVariable String newExamResult);
     
     @GetMapping("/assignvoucher/{voucherId}/{emailId}/{voucherrequestId}")

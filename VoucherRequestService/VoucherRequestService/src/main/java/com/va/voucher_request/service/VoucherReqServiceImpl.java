@@ -388,7 +388,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		paths.add(atch1);
 		paths.add(atch2);
 		//paths.add(atch3);
-		impl.sendHtmlEmail(vr.getCandidateEmail(), "AWS ASSOCIATE SOLUTION ARCHITECT CERTIFICATION | 100% FREE EXAM VOUCHER NUMBER | ASSIGNED", htmlContent,paths);
+		impl.sendHtmlEmail(vr.getCandidateEmail(),vr.getCloudExam()+" CERTIFICATION | 100% FREE EXAM VOUCHER NUMBER | ASSIGNED", htmlContent,paths);
 		return vrepo.save(vr);
  
 	}
@@ -462,31 +462,37 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		List<String> pending = new ArrayList<>();
 		List<VoucherRequest> allrequest = vrepo.findAll();
 		LocalDate today = LocalDate.now();
-
+ 
 		for (VoucherRequest v : allrequest) {
 			if (v.getExamResult().equalsIgnoreCase("pending") && v.getPlannedExamDate().isBefore(today)
 					&& v.getVoucherCode() != null) {
-
+ 
 				pending.add(v.getCandidateEmail());
-
+ 
 				Optional<User> userByName = userClient.getUserByName(v.getCandidateName()).getBody();
 				User user = userByName.get();
 				String mentorEmail = user.getMentorEmail();
-
+				
+				String subject = "Reminder: Update " + v.getCloudPlatform() + " Certification Status : " + v.getCloudExam();
+ 
 				for (String s : pending) {
-					String msg = "Hi " + v.getCandidateName().toUpperCase() + "," + "\r\n"
-							+ "We hope this message finds you well. It has come to our attention that your exam status for the "
-							+ v.getCloudPlatform() + " certification is currently marked as pending. "
-							+ "To ensure a smooth process and timely updates, we kindly request you to log in to your account and update your exam status as soon as possible.\n\n"
-							+ "Your prompt attention to this matter is greatly appreciated.\n\n" + "Best regards,\n"
-							+ "VOUCHER DASHBOARD TEAM";
-					impl.sendPendingEmail(s, mentorEmail, "Urgent: Update Your Exam Status", msg);
-
+					String message = "Dear " + v.getCandidateName() + ",\n\n"
+		                    + "We wanted to bring to your attention that the status of your " + v.getCloudExam() + " exam is currently marked as pending in our system. "
+		                    + "As the planned exam date has passed, we kindly remind you to log in and promptly update the exam status.\n\n"
+		                    + "If you have successfully passed the exam, we kindly ask you to provide your validation number and it is essential to upload your certification in the portal. "
+		                    + "Additionally, we require you to upload the certificate in the R2D2 portal for further verification.\n\n"
+		                    + "To assist you with steps for uploading in R2D2, we have attached detailed instructions to this email.\n\n"
+		                    + "Your prompt attention to this matter is crucial for ensuring a smooth process and timely updates. "
+		                    + "Remember, after uploading the certificate in R2D2, kindly take a screenshot of it and upload it in the portal. Only then you will be marked as completed.\n\n"
+		                    + "Best Regards,\n"
+		                    + "Voucher Dashboard Team";
+					impl.sendPendingEmail(s, mentorEmail, subject, message);
+ 
 				}
 			}
 		}
 		return pending;
-
+ 
 	}
 
 	@Override
@@ -517,30 +523,43 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		
 	}
 
+	private String getDenialReasonMessage(String reason, String examName) {
+	    switch(reason) {
+	        case "lowScore":
+	            return "your DoSelect score is below the minimum requirement. \n\n"
+	                    + "To be eligible for the voucher, candidates must achieve a minimum score of 80. \nWe encourage you to review your performance and consider revising your preparation strategy before attempting to request a voucher again.";
+	        case "outdatedImage":
+	            return "an outdated DoSelect image. The image you uploaded for issuing of a voucher apperas to be an old doSelect image. \n\n"
+	            		+ "Kindly ensure that you have recently taken the DoSelect exam for the cloud certification you are requesting for and upload the lastest score to facilitate the voucher request process.";
+	        case "incorrectScreenshot":
+	            return "an incorrect DoSelect screenshot. The image you uploaded apperas to be incorrect. \n\n"
+	            		+ "Kindly ensure that you upload a proper DoSelect screenshot that corresponds to the cloud exam you are requesting for inorder to facilitate the voucher request process accurately.";
+	        case "incorrectImageFormat":
+	            return "an incorrect format of the DoSelect image. The DoSelect image you uploaded does not correspond to the certification you have requested for. \n\n"
+	            		+ "Kindly ensure that you upload the appropriate DoSelect screenshot specifically for the exam - " + examName + ".";
+	        default:
+	            return "Your voucher request for the " + examName + " has been denied. Please contact support for any queries.";
+	    }
+	}
+ 
 	@Override
-	public VoucherRequest denyRequest(String requestId) throws NoVoucherPresentException {
+	public VoucherRequest denyRequest(String requestId, String reason) throws NoVoucherPresentException {
 		Optional<VoucherRequest> findReqById = vrepo.findById(requestId);
 		if (findReqById.isPresent()) {
 			VoucherRequest re = findReqById.get();
-
+ 
 			String adminMail = "boyinapalli.ravi-chandra@capgemini.com";
-			String msg = "Dear " + re.getCandidateName().toUpperCase() + "\n\n"
-					+ "We hope this message finds you well. We regret to inform you that your voucher request for the "
-					+ re.getCloudExam().toUpperCase() + " has been denied due to the following reasons:\n\n"
-					+ "1. **Image Format Issue:**\n" + "   The image you uploaded for the "
-					+ re.getCloudPlatform().toUpperCase()
-					+ " exam is not in the proper format. Please ensure that the image belongs to the "
-					+ re.getCloudExam() + " you have requested for.\n\n" + "2. **Missing Image:**\n"
-					+ "   You have not provided the latest DoSelect image required for the voucher issuance process. Kindly ensure that you upload the latest image before submitting the voucher request.\n\n"
-					+ "3. **Minimum Score Requirement:**\n"
-					+ "   Unfortunately, your DoSelect score does not meet the minimum requirement to avail a voucher for the "
-					+ re.getCloudExam().toUpperCase()
-					+ ". To be eligible, candidates must achieve a minimum score of 80.\n\n"
-					+ "We understand that this may be disappointing, and we encourage you to review and address the mentioned issues before attempting to request a voucher again. If you have any questions or concerns, feel free to reach out to our support team at "
-					+ adminMail + ".\n\n" + "Thank you for your understanding.\n\n" + "Best regards,\n\n"
-					+ "VOUCHER-CONNECT \n" + "VOUCHER DASHBOARD TEAM";
-
-			impl.sendEmail(re.getCandidateEmail(), "VOUCHER CONNECT - Voucher Request Denied", msg);
+			String reasonMessage = getDenialReasonMessage(reason, re.getCloudExam());
+			String msg = "Dear " + re.getCandidateName().toUpperCase() + ",\n\n"
+						+ "We regret to inform you that your voucher request for the "
+						+ re.getCloudExam().toUpperCase() + " has been denied due to "
+						+ reasonMessage + "\n\n"
+	                    + "We understand that this news may be disappointing, and we encourage you to carefully review and address the mentioned issues before attempting to request a voucher again. "
+	                    + "If you have any questions or concerns, feel free to reach out to our support team at " + adminMail + ".\n\n"
+	                    + "Thank you for your understanding.\n\n" + "Best regards,\n\n"
+	                    + "VOUCHER-CONNECT \n" + "VOUCHER DASHBOARD TEAM";
+ 
+			impl.sendEmail(re.getCandidateEmail(), "Voucher Request Denied | " + re.getCloudExam(), msg);
 			vrepo.delete(re);
 			return re;
 		} else {
