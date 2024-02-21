@@ -63,7 +63,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 	    void testHandleVoucherNotFoundException() {
 	        VoucherNotFoundException exception = new VoucherNotFoundException("Voucher not found");
 
-	        ResponseEntity<String> responseEntity = globalExceptionHandler.handleVoucherNotFoundException(exception);
+	        ResponseEntity<Object> responseEntity = globalExceptionHandler.handleVoucherNotFoundException(exception);
 
 	        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
 	        assertEquals("Voucher Not Found With This Id", responseEntity.getBody());
@@ -95,7 +95,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 	    void testHandleNoVoucherPresentException() {
 	        NoVoucherPresentException exception = new NoVoucherPresentException("No Voucher Present");
 
-	        ResponseEntity<String> responseEntity = globalExceptionHandler.handleNoVoucherPresentException(exception);
+	        ResponseEntity<Object> responseEntity = globalExceptionHandler.handleNoVoucherPresentException(exception);
 
 	        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
 	        assertEquals("No Voucher Present", responseEntity.getBody());

@@ -243,7 +243,7 @@ public class VoucherServiceImpl implements VoucherService {
 				{
 					if(v.getVoucherCode().equals(re.getVoucherCode()))
 					{
-						if(re.getExamResult().equalsIgnoreCase("pending") && re.getPlannedExamDate().isAfter(LocalDate.now()) )
+						if(re.getExamResult().equalsIgnoreCase("pending") && re.getPlannedExamDate().isBefore(LocalDate.now()) )
 						{
 							assignedButNotUtilized.add(v);
 						}
@@ -254,6 +254,15 @@ public class VoucherServiceImpl implements VoucherService {
 		}
 		
 		return assignedButNotUtilized;
+	}
+
+	@Override
+	public List<Voucher> fetchAllVouchers() throws NoVoucherPresentException {
+		List<Voucher> vouchers = voucherRepo.findAll();
+        if (vouchers.isEmpty()) {
+            throw new NoVoucherPresentException("No vouchers found");
+        }
+        return vouchers;
 	}
 
 }

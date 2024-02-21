@@ -477,13 +477,13 @@ public class VoucherReqServiceImpl implements VoucherReqService {
  
 				for (String s : pending) {
 					String message = "Dear " + v.getCandidateName() + ",\n\n"
-		                    + "We wanted to bring to your attention that the status of your " + v.getCloudExam() + " exam is currently marked as pending in our system. "
-		                    + "As the planned exam date has passed, we kindly remind you to log in and promptly update the exam status.\n\n"
-		                    + "If you have successfully passed the exam, we kindly ask you to provide your validation number and it is essential to upload your certification in the portal. "
-		                    + "Additionally, we require you to upload the certificate in the R2D2 portal for further verification.\n\n"
+		                    + "It has been noticed that the status of your " + v.getCloudExam() + " exam is currently marked as pending. \n"
+		                    + "We kindly remind you to log in to voucher tool and promptly update the exam status in the system.\n\n"
+		                    + "If you have successfully cleared the exam, it is mandatory to upload your Cloud Certificate. "
+		                    + "Additionally it's important to upload your certification details on R2D2 JobFeed portal and confirm back by taking a screenshot of the same and upload in the tool. \nOnly then you will be marked as completed.\n\n"
 		                    + "To assist you with steps for uploading in R2D2, we have attached detailed instructions to this email.\n\n"
-		                    + "Your prompt attention to this matter is crucial for ensuring a smooth process and timely updates. "
-		                    + "Remember, after uploading the certificate in R2D2, kindly take a screenshot of it and upload it in the portal. Only then you will be marked as completed.\n\n"
+		                    + "Your prompt attention to this matter is crucial for ensuring a smooth process and timely updates. \n\n"
+		                    + "Note: The screenshot should cover the Obtained date, Validity date and your name at the top right corner.\n\n"
 		                    + "Best Regards,\n"
 		                    + "Voucher Dashboard Team";
 					impl.sendPendingEmail(s, mentorEmail, subject, message);

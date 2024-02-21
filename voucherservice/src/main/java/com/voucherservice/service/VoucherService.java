@@ -26,7 +26,7 @@ public interface VoucherService {
 	
 	List<Voucher> getAllVoucherWhichAreAssignedButNotUtilized() throws NoVoucherPresentException;
 	
-	
+	List<Voucher> fetchAllVouchers() throws NoVoucherPresentException;
 	
 	
 

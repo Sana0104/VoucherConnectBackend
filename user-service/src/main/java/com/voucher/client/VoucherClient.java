@@ -46,5 +46,8 @@ public interface VoucherClient {
 	
 	@GetMapping("/getAllAssignedButNotUtilizedVoucher")
 	public ResponseEntity<List<Voucher>> getAllVoucherWhichAreAssignedButNotUtilized();
+	
+	@GetMapping("/fetchAllVouchers")
+	public ResponseEntity<List<Voucher>> fetchAllVouchers();
 
 }

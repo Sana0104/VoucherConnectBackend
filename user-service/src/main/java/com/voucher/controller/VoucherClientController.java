@@ -89,4 +89,11 @@ public class VoucherClientController {
 	public ResponseEntity<List<Voucher>> getAllVoucherWhichAreAssignedButNotUtilized(){
 		return voucherClient.getAllVoucherWhichAreAssignedButNotUtilized();
 	}
+	
+	@GetMapping("/fetchAllVouchers")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+	@SecurityRequirement(name = "api")
+	public ResponseEntity<List<Voucher>> fetchAllVouchers(){
+		return voucherClient.fetchAllVouchers();
+	}
 }
