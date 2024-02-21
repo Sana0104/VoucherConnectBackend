@@ -49,7 +49,7 @@ public interface VoucherReqService {
 
 
 	VoucherRequest uploadCertificate(String voucherCode, MultipartFile certificateFile, String path) throws ExamNotPassedException, IOException, NotAnImageFileException, NotFoundException;
-	VoucherRequest denyRequest(String requestId) throws NoVoucherPresentException;
+	VoucherRequest denyRequest(String requestId,String reason) throws NoVoucherPresentException;
 
 	
 

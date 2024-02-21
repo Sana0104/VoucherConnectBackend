@@ -56,7 +56,7 @@ public class VoucherRequestClientController {
     }
 
  
-    @PutMapping("/{voucherCode}/{newExamResult}")
+    @PutMapping("/updateExamResult/{voucherCode}/{newExamResult}")
     @PreAuthorize("hasAnyRole('CANDIDATE')")
     @SecurityRequirement(name = "api")
     public ResponseEntity<VoucherRequest> updateResultStatus( @PathVariable String voucherCode, @PathVariable String newExamResult){

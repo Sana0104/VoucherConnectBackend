@@ -107,6 +107,14 @@ public class VoucherController {
 	}
 	
 	
+	@GetMapping("/fetchAllVouchers")
+	public ResponseEntity<List<Voucher>> fetchAllVouchers() throws NoVoucherPresentException
+	{
+		List<Voucher> vouchers = voucherService.fetchAllVouchers();
+		return new ResponseEntity<>(vouchers,HttpStatus.OK);
+	}
+	
+	
 	
 
 }
