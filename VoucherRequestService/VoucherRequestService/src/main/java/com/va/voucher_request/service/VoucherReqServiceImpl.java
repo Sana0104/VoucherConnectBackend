@@ -18,7 +18,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 
@@ -461,7 +460,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 				Optional<User> userByName = userClient.getUserByName(v.getCandidateName()).getBody();
 				User user = userByName.get();
 				String mentorEmail = user.getMentorEmail();
-				String subject = "Reminder: Update " + v.getCloudPlatform() + " Certification Status : "
+				String subject = "Reminder: Update " + v.getCloudPlatform() + " Certification Status : " 
 						+ v.getCloudExam();
 				for (String s : pending) {
 					String message = "Dear " + v.getCandidateName() + ",\n\n"
@@ -507,7 +506,8 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		}
 	}
 
-	private String getDenialReasonMessage(String reason, String examName) {
+
+	public  String getDenialReasonMessage(String reason, String examName) {
 		switch (reason) {
 		case "lowScore":
 			return "your DoSelect score is below the minimum requirement. \n\n"
@@ -521,7 +521,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		case "incorrectImageFormat":
 			return "an incorrect format of the DoSelect image. The DoSelect image you uploaded does not correspond to the certification you have requested for. \n\n"
 					+ "Kindly ensure that you upload the appropriate DoSelect screenshot specifically for the exam - "
-					+ examName + ".";
+					+ examName + ".";  
 		default:
 			return "Your voucher request for the " + examName
 					+ " has been denied. Please contact support for any queries.";
