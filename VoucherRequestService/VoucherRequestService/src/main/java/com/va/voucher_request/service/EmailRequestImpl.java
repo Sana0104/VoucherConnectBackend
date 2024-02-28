@@ -66,10 +66,10 @@ public class EmailRequestImpl {
 			helper.setSubject(subject);
 			helper.setText(htmlContent, true);
 
-//			for (String s : paths) {
-//				FileSystemResource fs = new FileSystemResource(new File(s));
-//				helper.addAttachment(fs.getFilename(), fs);
-//			}
+			for (String s : paths) {
+				FileSystemResource fs = new FileSystemResource(new File(s));
+				helper.addAttachment(fs.getFilename(), fs);
+			}
 			javaMailSender.send(mimeMessage);
 
 			return "HTML mail send successfully";

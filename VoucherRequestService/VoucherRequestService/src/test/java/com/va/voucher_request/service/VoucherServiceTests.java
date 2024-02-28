@@ -3,10 +3,10 @@ package com.va.voucher_request.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -31,6 +31,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,22 +39,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.va.voucher_request.client.UserClient;
 import com.va.voucher_request.client.VoucherClient;
-import com.va.voucher_request.dto.Voucher;
+import com.va.voucher_request.dto.User;
 import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
 import com.va.voucher_request.exceptions.NotAnImageFileException;
 import com.va.voucher_request.exceptions.NotFoundException;
-import com.va.voucher_request.exceptions.ParticularVoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.ResourceAlreadyExistException;
 import com.va.voucher_request.exceptions.ScoreNotValidException;
-import com.va.voucher_request.exceptions.VoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.VoucherNotFoundException;
 import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
 import com.va.voucher_request.repo.VoucherRequestRepository;
-import com.va.voucher_request.service.VoucherReqServiceImpl;
  
 
  
@@ -68,6 +67,12 @@ class VoucherServiceTests {
     
     @Mock
     private VoucherClient voucherClient;
+    
+    @Mock
+    private UserClient userClient;
+    
+    @Mock
+    private EmailRequestImpl emailService;
     
     @AfterEach
     public void tearDown() throws IOException {
@@ -396,6 +401,43 @@ class VoucherServiceTests {
         // Verify that save method was not called
         verify(voucherRepository, never()).save(voucherRequest);
     }
+
+    
+    
+    @Test
+    void testPendingEmails() {
+        // Mock voucher requests
+        List<VoucherRequest> voucherRequests = new ArrayList<>();
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setExamResult("pending");
+        voucherRequest.setPlannedExamDate(LocalDate.now().minusDays(1));
+        voucherRequest.setVoucherCode("ABC123");
+        voucherRequest.setCandidateEmail("test@example.com"); // Set candidate email
+        voucherRequest.setCandidateName("Test Candidate"); // Set candidate name
+        voucherRequest.setCloudPlatform("AWS"); // Set cloud platform
+        voucherRequest.setCloudExam("AWS Solutions Architect"); // Set cloud exam
+        voucherRequests.add(voucherRequest);
+        when(voucherRepository.findAll()).thenReturn(voucherRequests);
+        
+        // Mock userClient response
+        User user = new User();
+        user.setMentorEmail("mentor@example.com");
+        ResponseEntity<Optional<User>> userResponse = ResponseEntity.ok(Optional.of(user));
+        when(userClient.getUserByName(anyString())).thenReturn(userResponse);
+        
+                
+        // Call the method
+        List<String> pendingEmails = voucherService.pendingEmails();
+        
+        // Verify that the email service was called
+        verify(emailService, times(1)).sendPendingEmail(eq("test@example.com"), eq("mentor@example.com"), anyString(), anyString());
+        
+        // Assert the result
+        assertEquals(1, pendingEmails.size());
+        assertEquals("test@example.com", pendingEmails.get(0));
+    }
+    
+   
 
 
   
