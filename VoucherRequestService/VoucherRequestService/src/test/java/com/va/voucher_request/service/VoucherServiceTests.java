@@ -1,19 +1,12 @@
 package com.va.voucher_request.service;
  
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -33,12 +26,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.va.voucher_request.client.UserClient;
 import com.va.voucher_request.client.VoucherClient;
+import com.va.voucher_request.dto.User;
 import com.va.voucher_request.dto.Voucher;
 import com.va.voucher_request.exceptions.ExamNotPassedException;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
@@ -54,7 +50,11 @@ import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
 import com.va.voucher_request.repo.VoucherRequestRepository;
 import com.va.voucher_request.service.VoucherReqServiceImpl;
- 
+
+import jakarta.mail.MessagingException;
+
+import static org.mockito.ArgumentMatchers.eq;
+
 
  
 @SpringBootTest
@@ -68,6 +68,12 @@ class VoucherServiceTests {
     
     @Mock
     private VoucherClient voucherClient;
+    
+    @Mock
+    private UserClient userClient;
+
+    @Mock
+    private EmailRequestImpl emailService;
     
     @AfterEach
     public void tearDown() throws IOException {
@@ -509,4 +515,279 @@ class VoucherServiceTests {
         verify(voucherRepository, never()).save(any());
     }
   
+    @Test
+    void testPendingEmails() {
+        // Mock voucher requests
+        List<VoucherRequest> voucherRequests = new ArrayList<>();
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setExamResult("pending");
+        voucherRequest.setPlannedExamDate(LocalDate.now().minusDays(1));
+        voucherRequest.setVoucherCode("ABC123");
+        voucherRequest.setCandidateEmail("test@example.com"); // Set candidate email
+        voucherRequest.setCandidateName("Test Candidate"); // Set candidate name
+        voucherRequest.setCloudPlatform("AWS"); // Set cloud platform
+        voucherRequest.setCloudExam("AWS Solutions Architect"); // Set cloud exam
+        voucherRequests.add(voucherRequest);
+        when(voucherRepository.findAll()).thenReturn(voucherRequests);
+        
+        // Mock userClient response
+        User user = new User();
+        user.setMentorEmail("mentor@example.com");
+        ResponseEntity<Optional<User>> userResponse = ResponseEntity.ok(Optional.of(user));
+        when(userClient.getUserByName(anyString())).thenReturn(userResponse);
+        
+                
+        // Call the method
+        List<String> pendingEmails = voucherService.pendingEmails();
+        
+        // Verify that the email service was called
+        verify(emailService, times(1)).sendPendingEmail(eq("test@example.com"), eq("mentor@example.com"), anyString(), anyString());
+        
+        // Assert the result
+        assertEquals(1, pendingEmails.size());
+        assertEquals("test@example.com", pendingEmails.get(0));
+    }
+    
+    @Test
+    void testNoPendingEmails() {
+        // Mock voucher requests to return an empty list
+        when(voucherRepository.findAll()).thenReturn(new ArrayList<>());
+
+        // Test
+        List<String> pendingEmails = voucherService.pendingEmails();
+
+        // Verify no emails are sent
+        verify(emailService, never()).sendPendingEmail(anyString(), anyString(), anyString(), anyString());
+
+        // Assert that the list of pending emails is empty
+        assertTrue(pendingEmails.isEmpty());
+    }
+    
+
+    @Test
+    void testNoCandidatesWithPendingStatus() {
+        // Mock voucher requests to return a list where exam result is not "pending"
+        List<VoucherRequest> voucherRequests = new ArrayList<>();
+        VoucherRequest voucherRequest1 = new VoucherRequest();
+        voucherRequest1.setExamResult("pass");
+        VoucherRequest voucherRequest2 = new VoucherRequest();
+        voucherRequest2.setExamResult("fail");
+        voucherRequests.add(voucherRequest1);
+        voucherRequests.add(voucherRequest2);
+        when(voucherRepository.findAll()).thenReturn(voucherRequests);
+
+        // Test
+        List<String> pendingEmails = voucherService.pendingEmails();
+
+        // Verify no emails are sent
+        verify(emailService, never()).sendPendingEmail(anyString(), anyString(), anyString(), anyString());
+
+        // Assert that the list of pending emails is empty
+        assertTrue(pendingEmails.isEmpty());
+    }
+
+    @Test
+    void testPendingRequestsWithPendingRequests() {
+        // Mock voucher requests
+        List<VoucherRequest> allRequests = new ArrayList<>();
+        VoucherRequest pendingRequest1 = new VoucherRequest();
+        pendingRequest1.setExamResult("pending");
+        pendingRequest1.setPlannedExamDate(LocalDate.now().minusDays(1));
+        pendingRequest1.setVoucherCode("ABC123");
+        VoucherRequest pendingRequest2 = new VoucherRequest();
+        pendingRequest2.setExamResult("pending");
+        pendingRequest2.setPlannedExamDate(LocalDate.now().minusDays(1));
+        pendingRequest2.setVoucherCode("XYZ456");
+        allRequests.add(pendingRequest1);
+        allRequests.add(pendingRequest2);
+        when(voucherRepository.findAll()).thenReturn(allRequests);
+
+        // Test
+        List<VoucherRequest> pendingRequests = voucherService.pendingRequests();
+
+        // Verify
+        assertEquals(2, pendingRequests.size());
+    }
+
+    @Test
+    void testPendingRequestsWithNoPendingRequests() {
+        // Mock voucher requests
+        List<VoucherRequest> allRequests = new ArrayList<>();
+        VoucherRequest completedRequest1 = new VoucherRequest();
+        completedRequest1.setExamResult("completed");
+        VoucherRequest completedRequest2 = new VoucherRequest();
+        completedRequest2.setExamResult("completed");
+        allRequests.add(completedRequest1);
+        allRequests.add(completedRequest2);
+        when(voucherRepository.findAll()).thenReturn(allRequests);
+
+        // Test
+        List<VoucherRequest> pendingRequests = voucherService.pendingRequests();
+
+        // Verify
+        assertTrue(pendingRequests.isEmpty());
+    }
+    @Test
+    void testFindByRequestIdWhenVoucherExists() throws MessagingException {
+        // Mock behavior of the repository to return a voucher request with the given ID
+        String voucherId = "123";
+        VoucherRequest voucherRequest = new VoucherRequest();
+        when(voucherRepository.findById(voucherId)).thenReturn(Optional.of(voucherRequest));
+
+        // Test
+        Optional<VoucherRequest> result = voucherService.findByRequestId(voucherId);
+
+        // Verify
+        assertTrue(result.isPresent());
+        assertSame(voucherRequest, result.get());
+    }
+
+    @Test
+    void testFindByRequestIdWhenVoucherDoesNotExist() throws MessagingException {
+        // Mock behavior of the repository to return an empty optional
+        String voucherId = "456";
+        when(voucherRepository.findById(voucherId)).thenReturn(Optional.empty());
+
+        // Test
+        Optional<VoucherRequest> result = voucherService.findByRequestId(voucherId);
+        
+
+        // Verify
+        assertNull(result);
+
+
+    }
+    @Test
+    void testDenyRequestWhenRequestExists() throws NoVoucherPresentException {
+        // Mock voucher request
+        String requestId = "123";
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setCandidateName("John Doe");
+        voucherRequest.setCandidateEmail("john@example.com");
+        voucherRequest.setCloudExam("AWS");
+        Optional<VoucherRequest> optionalVoucherRequest = Optional.of(voucherRequest);
+        when(voucherRepository.findById(requestId)).thenReturn(optionalVoucherRequest);
+
+        // Test
+        VoucherRequest result = voucherService.denyRequest(requestId, "Incomplete Application");
+
+        // Verify email sent
+        verify(emailService, times(1)).sendEmail(eq("john@example.com"), anyString(), anyString());
+
+        // Verify that voucher request is deleted
+        verify(voucherRepository, times(1)).delete(voucherRequest);
+
+        // Assert result
+        assertNotNull(result);
+        assertEquals(voucherRequest, result);
+    }
+    
+    @Test
+    void testGetDenialReasonMessageLowScore() {
+        // Arrange
+    	VoucherReqServiceImpl voucherService = new VoucherReqServiceImpl();
+        String reason = "lowScore";
+        String examName = "AWS";
+
+        // Act
+        String message = voucherService.getDenialReasonMessage(reason, examName);
+
+        // Assert
+        String expectedMessage = "your DoSelect score is below the minimum requirement. \n\n" +
+                "To be eligible for the voucher, candidates must achieve a minimum score of 80. \n" +
+                "We encourage you to review your performance and consider revising your preparation strategy before attempting to request a voucher again.";
+        assertEquals(expectedMessage, message);
+    }
+
+    // Add similar test methods for other denial reasons...
+
+    @Test
+    void testGetDenialReasonMessageDefault() {
+        // Arrange
+    	VoucherReqServiceImpl voucherService = new VoucherReqServiceImpl();
+        String reason = "unknownReason";
+        String examName = "Azure";
+
+        // Act
+        String message = voucherService.getDenialReasonMessage(reason, examName);
+
+        // Assert
+        String expectedMessage = "Your voucher request for the Azure has been denied. Please contact support for any queries.";
+        assertEquals(expectedMessage, message);
+    }
+    @Test
+    void testGetDenialReasonMessageOutdatedImage() {
+        // Arrange
+    	VoucherReqServiceImpl voucherService = new VoucherReqServiceImpl();
+        String reason = "outdatedImage";
+        String examName = "Azure";
+
+        // Act
+        String message = voucherService.getDenialReasonMessage(reason, examName);
+
+        // Assert
+        String expectedMessage = "an outdated DoSelect image. The image you uploaded for issuing of a voucher apperas to be an old doSelect image. \n\n"
+				+ "Kindly ensure that you have recently taken the DoSelect exam for the cloud certification you are requesting for and upload the lastest score to facilitate the voucher request process.";
+        assertEquals(expectedMessage, message);
+    }
+    
+    @Test
+    void testGetDenialReasonMessageIncorrectScreenshot() {
+        // Arrange
+    	VoucherReqServiceImpl voucherService = new VoucherReqServiceImpl();
+        String reason = "incorrectScreenshot";
+        String examName = "Azure";
+
+        // Act
+        String message = voucherService.getDenialReasonMessage(reason, examName);
+
+        // Assert
+        String expectedMessage = "an incorrect DoSelect screenshot. The image you uploaded apperas to be incorrect. \n\n"
+				+ "Kindly ensure that you upload a proper DoSelect screenshot that corresponds to the cloud exam you are requesting for inorder to facilitate the voucher request process accurately.";
+        		
+        assertEquals(expectedMessage, message);
+    }
+    
+    @Test
+    void testGetDenialReasonMessageIncorrectImageFormat() {
+        // Arrange
+    	VoucherReqServiceImpl voucherService = new VoucherReqServiceImpl();
+        String reason = "incorrectImageFormat";
+        String examName = "Azure";
+
+        // Act
+        String message = voucherService.getDenialReasonMessage(reason, examName);
+
+        // Assert
+        String expectedMessage = "an incorrect format of the DoSelect image. The DoSelect image you uploaded does not correspond to the certification you have requested for. \n\n"
+				+ "Kindly ensure that you upload the appropriate DoSelect screenshot specifically for the exam - "
+				+ examName + ".";
+        assertEquals(expectedMessage, message);
+    }
+    
+    @Test
+    void testUserNotFoundInUserClient() {
+        // Mock voucher requests
+        List<VoucherRequest> voucherRequests = new ArrayList<>();
+        VoucherRequest voucherRequest = new VoucherRequest();
+        voucherRequest.setExamResult("pending");
+        voucherRequest.setPlannedExamDate(LocalDate.now().minusDays(1));
+        voucherRequest.setVoucherCode("ABC123");
+        voucherRequests.add(voucherRequest);
+        when(voucherRepository.findAll()).thenReturn(voucherRequests);
+
+        // Mock UserClient to return a not found response for the user
+        when(userClient.getUserByName(anyString())).thenReturn(ResponseEntity.notFound().build());
+
+        // Test
+        List<String> pendingEmails = voucherService.pendingEmails();
+
+        // Verify no emails are sent
+        verify(emailService, never()).sendPendingEmail(anyString(), anyString(), anyString(), anyString());
+
+        // Assert that the list of pending emails is empty
+        assertTrue(pendingEmails.isEmpty());
+    }
+
+    
 }

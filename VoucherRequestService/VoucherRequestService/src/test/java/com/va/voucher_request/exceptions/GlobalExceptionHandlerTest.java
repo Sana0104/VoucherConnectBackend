@@ -1,7 +1,7 @@
 package com.va.voucher_request.exceptions;
  
 import static org.junit.jupiter.api.Assertions.assertEquals;
- 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,12 +55,19 @@ class GlobalExceptionHandlerTest {
 	    }
 	    @Test
 	    void testHandleVoucherNotFoundException() {
+	        // Create a VoucherNotFoundException
 	        VoucherNotFoundException exception = new VoucherNotFoundException("Voucher not found");
- 
+
+	        // Call the exception handler method
 	        ResponseEntity<Object> responseEntity = globalExceptionHandler.handleVoucherNotFoundException(exception);
- 
+
+	        // Assert the status code
 	        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-	        assertEquals("Voucher Not Found With This Id", responseEntity.getBody());
+
+	        // Assert the response body
+	        String responseBody = (String) responseEntity.getBody();
+	        assertNotNull(responseBody);
+	        assertEquals("Voucher Not Found With This Id: Voucher not found", responseBody);
 	    }
 
 	    @Test
@@ -84,24 +91,27 @@ class GlobalExceptionHandlerTest {
 	        assertEquals("Voucher is Already Assigned", responseEntity.getBody());
 	    }
  
+	    
+	    
 	    @Test
 	    void testHandleNoVoucherPresentException() {
+	        // Create a NoVoucherPresentException
 	        NoVoucherPresentException exception = new NoVoucherPresentException("No Voucher Present");
- 
+
+	        // Call the exception handler method
 	        ResponseEntity<Object> responseEntity = globalExceptionHandler.handleNoVoucherPresentException(exception);
- 
+
+	        // Assert the status code
 	        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-	        assertEquals("No Voucher Present", responseEntity.getBody());
+
+	        // Assert the response body
+	        String responseBody = (String) responseEntity.getBody();
+	        assertNotNull(responseBody);
+	        assertEquals("No Voucher Present: No Voucher Present", responseBody);
 	    }
+
+
  
-//	    @Test
-//	    void testHandleNoCompletedVoucherRequestException() {
-//	        NoCompletedVoucherRequestException exception = new NoCompletedVoucherRequestException("No Completed Voucher Request Present");
-//
-//	        ResponseEntity<String> responseEntity = globalExceptionHandler.handleNoCompletedVoucherRequestException(exception);
-//
-//	        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-//	        assertEquals("No Completed Voucher Request Present", responseEntity.getBody());
-//	    }
+
 //	    
 }

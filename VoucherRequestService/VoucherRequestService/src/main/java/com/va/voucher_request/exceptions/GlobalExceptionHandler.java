@@ -2,6 +2,8 @@ package com.va.voucher_request.exceptions;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +25,11 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<String> handleScoreNotValidException(ScoreNotValidException ex) {
 		return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+	
 	@ExceptionHandler(VoucherNotFoundException.class)
 	public ResponseEntity<Object> handleVoucherNotFoundException(VoucherNotFoundException ex) {
-		return ResponseEntity.ok().body(new ArrayList<VoucherRequest>());
+	    String responseBody = "Voucher Not Found With This Id: " + ex.getMessage(); // Include exception message for additional context
+	    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
 	}
 	
 	@ExceptionHandler(ParticularVoucherIsAlreadyAssignedException.class)
@@ -39,9 +43,11 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(NoVoucherPresentException.class)
-	public ResponseEntity<Object> handleNoVoucherPresentException(NoVoucherPresentException ex) {
-		return ResponseEntity.ok().body(new ArrayList<VoucherRequest>());
-	}
+    public ResponseEntity<Object> handleNoVoucherPresentException(NoVoucherPresentException ex) {
+        String responseBody = "No Voucher Present: " + ex.getMessage(); // Include exception message for additional context
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
+    }
+	
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ExceptionResponse> handleResourceNotFoundException(ResourceNotFoundException ex , WebRequest request)
 	{
