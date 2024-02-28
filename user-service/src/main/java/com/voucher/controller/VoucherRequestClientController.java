@@ -175,4 +175,20 @@ public class VoucherRequestClientController {
     public ResponseEntity<byte[]> getR2d2Screenshot(@PathVariable("id") String id){
     	return voucherReqClient.getR2d2Screenshot(id);
     }
+    
+    @SecurityRequirement(name = "api")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping("/getResignedCandidates")
+    public ResponseEntity<?> getTotalResignedCandidateRequest(){
+    	return voucherReqClient.getTotalResignedCandidateRequest();
+    }
+    
+    
+    @SecurityRequirement(name = "api")
+	@PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping("/getBuChangedCandidates")
+    public ResponseEntity<?> getTotalBUChangeCandidateCount(){
+    	return voucherReqClient.getTotalBUChangeCandidateCount();
+ 
+}
 }

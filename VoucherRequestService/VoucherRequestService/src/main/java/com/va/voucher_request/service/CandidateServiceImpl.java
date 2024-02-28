@@ -30,9 +30,17 @@ public class CandidateServiceImpl implements CandidateService{
 		
 		List<String> listOfCandidateEmail= new ArrayList<String>();
 		
+		List<String> listToRemoveCandidate = new ArrayList<>();
+		List<String> convertedCandidateEmail = new ArrayList<>();
+		
 		for(Candidate c:listOfCandidate)
 		{
 			listOfCandidateEmail.add(c.getEmail());
+		}
+		
+		for(Candidate c:convertedCandidateList)
+		{
+			convertedCandidateEmail.add(c.getEmail());
 		}
 		
 		int count=0;
@@ -55,7 +63,23 @@ public class CandidateServiceImpl implements CandidateService{
 			}
 		}
 		
-		if(listToBeUpload.isEmpty()  && count==0) 
+		for(String cand:listOfCandidateEmail)
+		{
+			if(!convertedCandidateEmail.contains(cand))
+			{
+				listToRemoveCandidate.add(cand);
+			}
+		}
+		
+//		candidateRepo.deleteAll(listToRemoveCandidate);
+		
+		for(String c:listToRemoveCandidate)
+		{
+			candidateRepo.deleteByEmail(c);
+			count++;
+		}
+		
+		if(listToBeUpload.isEmpty()  && count==0)
 		{
 			throw new NoCandidateToUpDateException();
 		}
@@ -69,7 +93,6 @@ public class CandidateServiceImpl implements CandidateService{
 		
 		return list.size()+count;
 	}
-
 	@Override
 	public List<Candidate> getAllCandidate() throws NoCandidatePresentException {
 		

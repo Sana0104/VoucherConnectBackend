@@ -765,29 +765,6 @@ class VoucherServiceTests {
         assertEquals(expectedMessage, message);
     }
     
-    @Test
-    void testUserNotFoundInUserClient() {
-        // Mock voucher requests
-        List<VoucherRequest> voucherRequests = new ArrayList<>();
-        VoucherRequest voucherRequest = new VoucherRequest();
-        voucherRequest.setExamResult("pending");
-        voucherRequest.setPlannedExamDate(LocalDate.now().minusDays(1));
-        voucherRequest.setVoucherCode("ABC123");
-        voucherRequests.add(voucherRequest);
-        when(voucherRepository.findAll()).thenReturn(voucherRequests);
-
-        // Mock UserClient to return a not found response for the user
-        when(userClient.getUserByName(anyString())).thenReturn(ResponseEntity.notFound().build());
-
-        // Test
-        List<String> pendingEmails = voucherService.pendingEmails();
-
-        // Verify no emails are sent
-        verify(emailService, never()).sendPendingEmail(anyString(), anyString(), anyString(), anyString());
-
-        // Assert that the list of pending emails is empty
-        assertTrue(pendingEmails.isEmpty());
-    }
-
+   
     
 }

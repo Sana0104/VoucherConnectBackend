@@ -5,13 +5,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,18 +22,12 @@ import org.springframework.http.ResponseEntity;
 
 import com.va.voucher_request.client.VoucherClient;
 import com.va.voucher_request.contoller.VoucherReqController;
-import com.va.voucher_request.dto.Voucher;
 import com.va.voucher_request.exceptions.NoCompletedVoucherRequestException;
 import com.va.voucher_request.exceptions.NoVoucherPresentException;
-import com.va.voucher_request.exceptions.NotAnImageFileException;
 import com.va.voucher_request.exceptions.NotFoundException;
-import com.va.voucher_request.exceptions.ParticularVoucherIsAlreadyAssignedException;
-import com.va.voucher_request.exceptions.ResourceAlreadyExistException;
-import com.va.voucher_request.exceptions.ScoreNotValidException;
-import com.va.voucher_request.exceptions.VoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.VoucherNotFoundException;
 import com.va.voucher_request.model.VoucherRequest;
-import com.va.voucher_request.model.VoucherRequestDto;
+import com.va.voucher_request.repo.CandidateRepository;
 import com.va.voucher_request.service.EmailRequestImpl;
 import com.va.voucher_request.service.VoucherReqServiceImpl;
 
@@ -52,19 +46,8 @@ import com.va.voucher_request.service.VoucherReqServiceImpl;
     @InjectMocks
     private VoucherReqController voucherReqController;
     
-    
-//    @Test
-//    void testRequestVoucher() throws ScoreNotValidException, ResourceAlreadyExistException, NotAnImageFileException, IOException {
-//        VoucherRequestDto requestDto = new VoucherRequestDto();
-//        VoucherRequest voucherRequest=new VoucherRequest();
-//        when(voucherReqService.requestVoucher(requestDto, null, null)).thenReturn(voucherRequest);
-//        ResponseEntity<VoucherRequest> response = voucherReqController.requestVoucher(requestDto, null);
-//        verify(voucherReqService, times(1)).requestVoucher(requestDto, null, null);
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//        assertEquals(voucherRequest,response.getBody());
-//        
-//    }
-//    
+    @Mock
+    private CandidateRepository candidateRepo;
     
     @Test
     void testGetAllAssignedVoucher() throws NoVoucherPresentException {
@@ -126,26 +109,7 @@ import com.va.voucher_request.service.VoucherReqServiceImpl;
         assertEquals(voucherRequest, response.getBody());
     }
     
-    
-//    @Test
-//    void testAssignVoucher() throws NotFoundException, VoucherNotFoundException, VoucherIsAlreadyAssignedException, ParticularVoucherIsAlreadyAssignedException {
-//        // Prepare input data
-//        String voucherId = "V123";
-//        String emailId = "test@example.com";
-//        String voucherRequestId = "VR123";
-//
-//        // Mock service behavior
-//        Voucher voucher = new Voucher();
-//        VoucherRequest request=new VoucherRequest();
-//         when(voucherClient.getVoucherById(voucherId)).thenReturn(ResponseEntity.ok(voucher));
-//        when(voucherReqService.assignVoucher(voucherId, emailId, voucherRequestId)).thenReturn(request);
-//
-//
-//        // Perform the request and assert the response
-//        ResponseEntity<VoucherRequest> response = voucherReqController.assignVoucher(voucherId, emailId, voucherRequestId);
-//        assertEquals(HttpStatus.OK, response.getStatusCode());
-//        assertEquals(request, response.getBody());
-//    }
+   
     
     @Test
     void testGetAllVouchers() throws VoucherNotFoundException {
@@ -201,6 +165,48 @@ import com.va.voucher_request.service.VoucherReqServiceImpl;
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(completedVoucherRequests, response.getBody());
+    }
+    
+   
+
+
+    @Test
+    public void testGetAllVouchersByCandidateEmail() throws Exception {
+        // Arrange
+        String candidateEmail = "test@example.com";
+        List<VoucherRequest> voucherRequests = new ArrayList<>();
+        // populate voucherRequests with some test data
+
+        when(voucherReqService.getAllVouchersByCandidateEmail(candidateEmail)).thenReturn(voucherRequests);
+
+        // Act
+        ResponseEntity<List<VoucherRequest>> responseEntity = voucherReqController.getAllVouchersByCandidateEmail(candidateEmail);
+
+        // Assert
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(voucherRequests, responseEntity.getBody());
+    }
+    private String path;
+    
+    @BeforeEach
+    void setUp() {
+        path = "/some/test/path";
+    }
+
+    @Test
+    public void testPendingEmails() {
+        // Mock the service method
+        List<String> emails = new ArrayList<>();
+        emails.add("email1@example.com");
+        emails.add("email2@example.com");
+        when(voucherReqService.pendingEmails()).thenReturn(emails);
+
+        // Call the controller method
+        ResponseEntity<List<String>> response = voucherReqController.pendingEmails();
+
+        // Verify the response
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(emails, response.getBody());
     }
 
 }

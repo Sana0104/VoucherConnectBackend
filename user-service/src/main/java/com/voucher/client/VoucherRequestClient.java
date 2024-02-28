@@ -88,5 +88,11 @@ public interface VoucherRequestClient {
     
     @GetMapping(value = "/getR2d2Screenshot/{id}")
     public ResponseEntity<byte[]> getR2d2Screenshot(@PathVariable("id") String id);
+    
+    @GetMapping("/getResignedCandidates")
+    public ResponseEntity<?> getTotalResignedCandidateRequest();
+    
+    @GetMapping("/getBuChangedCandidates")
+    public ResponseEntity<?> getTotalBUChangeCandidateCount();
         
 }

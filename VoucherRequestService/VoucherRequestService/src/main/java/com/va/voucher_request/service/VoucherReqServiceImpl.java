@@ -9,9 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -36,8 +38,10 @@ import com.va.voucher_request.exceptions.ScoreNotValidException;
 import com.va.voucher_request.exceptions.VoucherIsAlreadyAssignedException;
 import com.va.voucher_request.exceptions.VoucherNotFoundException;
 import com.va.voucher_request.exceptions.WrongOptionSelectedException;
+import com.va.voucher_request.model.Candidate;
 import com.va.voucher_request.model.VoucherRequest;
 import com.va.voucher_request.model.VoucherRequestDto;
+import com.va.voucher_request.repo.CandidateRepository;
 import com.va.voucher_request.repo.VoucherRequestRepository;
 
 import jakarta.mail.MessagingException;
@@ -49,6 +53,9 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	@Autowired
 	private VoucherRequestRepository vrepo;
 
+	@Autowired
+	CandidateRepository candidateRepo;
+	
 	@Autowired
 	VoucherClient voucherClient;
 
@@ -548,6 +555,54 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		} else {
 			throw new NoVoucherPresentException();
 		}
+	}
+	
+	@Override
+	public List<VoucherRequest> getTotalResignedCandidateRequest() {
+		
+		List<Candidate> candidates = candidateRepo.findAll();
+		List<VoucherRequest> requests = vrepo.findAll();
+		List<VoucherRequest> resignedCandidates = new ArrayList<>();
+		
+		for(VoucherRequest v : requests)
+		{
+			for(Candidate c:candidates)
+			{
+				if(v.getCandidateEmail().equalsIgnoreCase(c.getEmail()))
+				{
+					if(c.getStatus().equalsIgnoreCase("resigned") && v.getVoucherCode()!=null)
+					{
+						resignedCandidates.add(v);
+					}
+				}
+			}
+		}
+		
+		return resignedCandidates;
+	}
+ 
+	@Override
+	public  List<VoucherRequest> getTotalBUChangeCandidateCount(){
+		
+		List<Candidate> candidates = candidateRepo.findAll();
+		List<VoucherRequest> requests = vrepo.findAll();
+		List<VoucherRequest> buChangedCandidates = new ArrayList<>();
+		List<String> candidateEmails = new ArrayList<String>();
+ 
+		for(Candidate c:candidates)
+		{
+			candidateEmails.add(c.getEmail());
+		}
+		
+		for(VoucherRequest v : requests)
+		{
+			if(!candidateEmails.contains(v.getCandidateEmail()) && v.getVoucherCode()!=null)
+			{
+				buChangedCandidates.add(v);
+			}
+		}
+		
+		return buChangedCandidates;
 	}
 
 }

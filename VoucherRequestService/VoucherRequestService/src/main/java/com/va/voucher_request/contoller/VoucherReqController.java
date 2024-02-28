@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,8 +76,10 @@ public class VoucherReqController {
 	@Value("${project.image}")
 	private String path;
 
-	@PostMapping(value = "/voucher", consumes = { "application/json", "multipart/form-data" }) 
-	public ResponseEntity<VoucherRequest> requestVoucher(@RequestPart("data") VoucherRequestDto request,@RequestPart("image") MultipartFile file) throws ScoreNotValidException, ResourceAlreadyExistException,NotAnImageFileException, IOException, CandidateIsNotEligibleException, CandidateNotFoundException {
+	@PostMapping(value = "/voucher", consumes = { "application/json", "multipart/form-data" })
+	public ResponseEntity<VoucherRequest> requestVoucher(@RequestPart("data") VoucherRequestDto request,
+			@RequestPart("image") MultipartFile file) throws ScoreNotValidException, ResourceAlreadyExistException,
+			NotAnImageFileException, IOException, CandidateIsNotEligibleException, CandidateNotFoundException {
 		Candidate cand = candidateRepo.findByEmail(request.getCandidateEmail());
 		if (cand == null) {
 			throw new CandidateNotFoundException();
@@ -118,7 +121,7 @@ public class VoucherReqController {
 			VoucherIsAlreadyAssignedException, ParticularVoucherIsAlreadyAssignedException, MessagingException {
 		Voucher voucher = voucherClient.getVoucherById(voucherId).getBody();
 		VoucherRequest request = vservice.assignVoucher(voucherId, emailId, voucherrequestId);
-		
+
 		return new ResponseEntity<>(request, HttpStatus.OK);
 
 	}
@@ -206,10 +209,10 @@ public class VoucherReqController {
 			throw new NotFoundException("Certificate not found for request ID: " + id);
 		}
 	}
-	
 
 	@GetMapping("/getDoSelectImage/{id}")
-	public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id) throws IOException, MessagingException {
+	public ResponseEntity<byte[]> getVoucherRequestImage(@PathVariable String id)
+			throws IOException, MessagingException {
 		// Find the voucher request by ID
 		Optional<VoucherRequest> optionalVoucherRequest = vservice.findByRequestId(id);
 
@@ -308,17 +311,37 @@ public class VoucherReqController {
 	}
 
 	// method to deny request
-	
+
 	@GetMapping("/findById/{id}")
 	public Optional<VoucherRequest> findByRequestId(@PathVariable String id) throws MessagingException {
-		
+
 		return vservice.findByRequestId(id);
-		
+
 	}
+
 	@GetMapping("/denyRequest/{requestId}")
-	public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId, @RequestParam("reason") String reason) throws NoVoucherPresentException {
+	public ResponseEntity<VoucherRequest> denyRequest(@PathVariable String requestId,
+			@RequestParam("reason") String reason) throws NoVoucherPresentException {
 		VoucherRequest denyRequest = vservice.denyRequest(requestId, reason);
 		return new ResponseEntity<VoucherRequest>(denyRequest, HttpStatus.OK);
- 
+
+	}
+
+	@GetMapping("/getResignedCandidates")
+	public ResponseEntity<?> getTotalResignedCandidateRequest() {
+		List<VoucherRequest> res = vservice.getTotalResignedCandidateRequest();
+		if (res.isEmpty()) {
+			return new ResponseEntity<>(0, HttpStatus.OK);
+		}
+		return new ResponseEntity<>(res, HttpStatus.OK);
+	}
+
+	@GetMapping("/getBuChangedCandidates")
+	public ResponseEntity<?> getTotalBUChangeCandidateCount() {
+		List<VoucherRequest> res = vservice.getTotalBUChangeCandidateCount();
+		if (res.isEmpty()) {
+			return new ResponseEntity<>(0, HttpStatus.OK);
+		}
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 }

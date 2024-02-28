@@ -8,7 +8,9 @@ import org.bson.types.ObjectId;
 import com.va.voucher_request.model.Candidate;
 
 @Repository
-public interface CandidateRepository extends MongoRepository<Candidate, ObjectId>{
+public interface CandidateRepository extends MongoRepository<Candidate, ObjectId> {
 
 	Candidate findByEmail(String email);
+
+	void deleteByEmail(String Email);
 }
