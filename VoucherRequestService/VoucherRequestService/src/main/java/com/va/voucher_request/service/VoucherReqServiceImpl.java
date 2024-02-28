@@ -55,7 +55,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 
 	@Autowired
 	CandidateRepository candidateRepo;
-	
+
 	@Autowired
 	VoucherClient voucherClient;
 
@@ -67,7 +67,6 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 	@Autowired
 	ThymeleafService service;
 
-//image get 
 	@Override
 	public VoucherRequest requestVoucher(VoucherRequestDto request, MultipartFile file, String path)
 			throws ScoreNotValidException, ResourceAlreadyExistException, NotAnImageFileException, IOException {
@@ -467,7 +466,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 				Optional<User> userByName = userClient.getUserByName(v.getCandidateName()).getBody();
 				User user = userByName.get();
 				String mentorEmail = user.getMentorEmail();
-				String subject = "Reminder: Update " + v.getCloudPlatform() + " Certification Status : " 
+				String subject = "Reminder: Update " + v.getCloudPlatform() + " Certification Status : "
 						+ v.getCloudExam();
 				for (String s : pending) {
 					String message = "Dear " + v.getCandidateName() + ",\n\n"
@@ -513,8 +512,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		}
 	}
 
-
-	public  String getDenialReasonMessage(String reason, String examName) {
+	public String getDenialReasonMessage(String reason, String examName) {
 		switch (reason) {
 		case "lowScore":
 			return "your DoSelect score is below the minimum requirement. \n\n"
@@ -528,7 +526,7 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 		case "incorrectImageFormat":
 			return "an incorrect format of the DoSelect image. The DoSelect image you uploaded does not correspond to the certification you have requested for. \n\n"
 					+ "Kindly ensure that you upload the appropriate DoSelect screenshot specifically for the exam - "
-					+ examName + ".";  
+					+ examName + ".";
 		default:
 			return "Your voucher request for the " + examName
 					+ " has been denied. Please contact support for any queries.";
@@ -556,52 +554,45 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 			throw new NoVoucherPresentException();
 		}
 	}
-	
+
 	@Override
 	public List<VoucherRequest> getTotalResignedCandidateRequest() {
-		
+
 		List<Candidate> candidates = candidateRepo.findAll();
 		List<VoucherRequest> requests = vrepo.findAll();
 		List<VoucherRequest> resignedCandidates = new ArrayList<>();
-		
-		for(VoucherRequest v : requests)
-		{
-			for(Candidate c:candidates)
-			{
-				if(v.getCandidateEmail().equalsIgnoreCase(c.getEmail()))
-				{
-					if(c.getStatus().equalsIgnoreCase("resigned") && v.getVoucherCode()!=null)
-					{
+
+		for (VoucherRequest v : requests) {
+			for (Candidate c : candidates) {
+				if (v.getCandidateEmail().equalsIgnoreCase(c.getEmail())) {
+					if (c.getStatus().equalsIgnoreCase("resigned") && v.getVoucherCode() != null) {
 						resignedCandidates.add(v);
 					}
 				}
 			}
 		}
-		
+
 		return resignedCandidates;
 	}
- 
+
 	@Override
-	public  List<VoucherRequest> getTotalBUChangeCandidateCount(){
-		
+	public List<VoucherRequest> getTotalBUChangeCandidateCount() {
+
 		List<Candidate> candidates = candidateRepo.findAll();
 		List<VoucherRequest> requests = vrepo.findAll();
 		List<VoucherRequest> buChangedCandidates = new ArrayList<>();
 		List<String> candidateEmails = new ArrayList<String>();
- 
-		for(Candidate c:candidates)
-		{
+
+		for (Candidate c : candidates) {
 			candidateEmails.add(c.getEmail());
 		}
-		
-		for(VoucherRequest v : requests)
-		{
-			if(!candidateEmails.contains(v.getCandidateEmail()) && v.getVoucherCode()!=null)
-			{
+
+		for (VoucherRequest v : requests) {
+			if (!candidateEmails.contains(v.getCandidateEmail()) && v.getVoucherCode() != null) {
 				buChangedCandidates.add(v);
 			}
 		}
-		
+
 		return buChangedCandidates;
 	}
 
