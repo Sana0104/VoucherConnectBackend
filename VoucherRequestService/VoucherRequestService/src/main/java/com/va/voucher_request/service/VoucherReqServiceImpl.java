@@ -527,9 +527,13 @@ public class VoucherReqServiceImpl implements VoucherReqService {
 			return "an incorrect format of the DoSelect image. The DoSelect image you uploaded does not correspond to the certification you have requested for. \n\n"
 					+ "Kindly ensure that you upload the appropriate DoSelect screenshot specifically for the exam - "
 					+ examName + ".";
-		default:
+		case "resigned":
 			return "Your voucher request for the " + examName
-					+ " has been denied. Please contact support for any queries.";
+					+ " has been denied because you have resigned from the company.";
+		case "otherBU":
+			return " your resignation from the company.";
+		default:
+			return " your transfer to another Business Unit.";
 		}
 	}
 
