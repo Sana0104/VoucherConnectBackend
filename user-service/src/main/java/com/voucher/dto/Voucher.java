@@ -15,5 +15,6 @@ public class Voucher {
 	private LocalDate issuedDate;
 	private LocalDate expiryDate;
 	private String issuedTo;
+	private String name;
 
 }
