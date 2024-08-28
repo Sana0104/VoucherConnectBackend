@@ -36,13 +36,13 @@ jobs:
       - name: Set Execute Permissions
         run: chmod -R +x ./.github
 
-      - name: Build and Package Maven 
-        working-directory: ${{ github.workspace }}
+      - name: Build and Package Maven for VoucherRequestService
+        working-directory: ${{ github.workspace }}/VoucherRequestService
         run: mvn clean package
 
       - name: Verify the Target Directory Exists
         run: |
-          if [ -d "${{ github.workspace }}/target" ]; then
+          if [ -d "${{ github.workspace }}/VoucherRequestService/target" ]; then
             echo "Target directory exists."
           else
             echo "Target directory does not exist."
@@ -50,10 +50,10 @@ jobs:
           fi
 
       - name: List Contents of Target Directory
-        run: ls -al ${{ github.workspace }}/target
+        run: ls -al ${{ github.workspace }}/VoucherRequestService/target
 
       - name: Upload Artifact to S3
-        working-directory: ${{ github.workspace }}/target
+        working-directory: ${{ github.workspace }}/VoucherRequestService/target
         run: |
           if ls *.jar 1> /dev/null 2>&1; then
             aws s3 cp *.jar s3://${{ env.S3BUCKET }}/
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: build-file
-          path: ${{ github.workspace }}/target/*.jar
+          path: ${{ github.workspace }}/VoucherRequestService/target/*.jar
 
   codescan:
     needs: build
