@@ -96,11 +96,9 @@ jobs:
   
       - name: CodeGuru Reviewer
         uses: aws-actions/codeguru-reviewer@v1.1
-        if: ${{ always() }} 
-        continue-on-error: false
         with:          
+         build_path: target
          s3_bucket: ${{ env.S3bucket_CodeGuru }} 
-         build_path: .
 
       - name: Store SARIF file
         if: steps.iam-role.outcome == 'success'
