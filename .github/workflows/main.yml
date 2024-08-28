@@ -1,148 +1,57 @@
-name: Build and Deploy
+name: Java CI with CodeGuru Reviewer
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
+    branches:
+      - master
 
-env:
-  AWS_REGION: eu-north-1
-  S3BUCKET: codeguru-glp 
-  S3bucket_CodeGuru: codeguru-reviewer-codeguru-glp 
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  security-events: write
 
 jobs:
   build:
-    name: Build and Package
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: us-east-1
 
       - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: 17
 
-      - name: Set Execute Permissions
-        run: chmod -R +x ./.github
-
-      - name: Build and Package Maven for API-Gateway
-        working-directory: ${{ github.workspace }}/API-Gateway
+      - name: Build and Package Maven for voucherservice
+        working-directory: ${{ github.workspace }}/voucherservice
         run: mvn clean package
 
-      - name: Verify the Target Directory Exists
-        run: |
-          if [ -d "${{ github.workspace }}/API-Gateway/target" ]; then
-            echo "Target directory exists."
-          else
-            echo "Target directory does not exist."
-            exit 1
-          fi
-
-      - name: List Contents of Target Directory
-        run: ls -al ${{ github.workspace }}/API-Gateway/target
-
-      - name: Upload Artifact to S3
-        working-directory: ${{ github.workspace }}/API-Gateway/target
-        run: |
-          if ls *.jar 1> /dev/null 2>&1; then
-            aws s3 cp *.jar s3://${{ env.S3BUCKET }}/
-          else
-            echo "No .jar files found in the target directory."
-            exit 1
-          fi
-
-      - name: Upload Artifacts for CodeScan
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-file
-          path: ${{ github.workspace }}/API-Gateway/target/*.jar
-
-  codescan:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Set Commit IDs
-        id: commits
-        run: |
-         echo "Fetching source and destination commits..."
-         echo "##[set-output name=source_commit;]$(git rev-parse HEAD~1)"
-         echo "##[set-output name=destination_commit;]$(git rev-parse HEAD)"
-  
       - name: CodeGuru Reviewer
         uses: aws-actions/codeguru-reviewer@v1.1
-        with:          
-         build_path: target
-         s3_bucket: ${{ env.S3bucket_CodeGuru }} 
-
-      - name: Store SARIF file
-        if: steps.iam-role.outcome == 'success'
-        uses: actions/upload-artifact@v2
         with:
-          name: SARIF_recommendations
-          path: ./codeguru-results.sarif.json
+          build_path: .
+          s3_bucket: codeguru-reviewer-glp-s3-2
+
+      - name: List Files in Build Directory
+        run: ls -al ${{ github.workspace }}/voucherservice
 
       - name: Upload review result
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
-         sarif_file: codeguru-results.sarif.json
-    
-    
-
-      - name: Check for Critical Vulnerabilities
-        run: |
-          echo "Check for critical vulnerabilities"
-          count=$(cat codeguru-results.sarif.json | jq '.runs[].results[] | select(.level == "error") | .level' | wc -l)
-          if (( $count > 0 )); then
-            echo "There are $count critical findings, stopping the pipeline."
-            exit 1
-          fi
-
-  deploy:
-    needs: codescan
-    runs-on: ubuntu-latest
-    environment: Dev
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Deploy with CodeDeploy
-        run: |
-          echo "Deploying branch ${{ env.GITHUB_REF }} to ${{ github.event.inputs.environment }}"
-          commit_hash=$(git rev-parse HEAD)
-          aws deploy create-deployment --application-name CodeDeployAppNameWithASG --deployment-group-name CodeDeployGroupName --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash --ignore-application-stop-failures
+          sarif_file: codeguru-results.sarif.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
