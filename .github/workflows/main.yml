@@ -36,8 +36,8 @@ jobs:
         with:
           java-version: 17
 
-      - name: Build and Package Maven for voucherservice
-        working-directory: ${{ github.workspace }}/voucherservice
+      - name: Build and Package Maven for user-service
+        working-directory: ${{ github.workspace }}/user-service
         run: mvn clean package
 
       - name: CodeGuru Reviewer
@@ -47,7 +47,7 @@ jobs:
           s3_bucket: codeguru-reviewer-glp-s3-2
 
       - name: List Files in Build Directory
-        run: ls -al ${{ github.workspace }}/voucherservice
+        run: ls -al ${{ github.workspace }}/user-service
 
       - name: Upload review result
         uses: github/codeql-action/upload-sarif@v3
