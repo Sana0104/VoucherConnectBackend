@@ -6,9 +6,9 @@ on:
   pull_request:
 
 env:
-  AWS_REGION: us-east-1 
-  S3BUCKET: glp-s3-1 
-  S3bucket_CodeGuru: codeguru-reviewer-glp-s3-1 
+  AWS_REGION: eu-north-1
+  S3BUCKET: codeguru-glp 
+  S3bucket_CodeGuru: codeguru-reviewer-codeguru-glp 
 
 jobs:
   build:
