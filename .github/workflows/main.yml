@@ -36,13 +36,13 @@ jobs:
       - name: Set Execute Permissions
         run: chmod -R +x ./.github
 
-      - name: Build and Package Maven for user-service
-        working-directory: ${{ github.workspace }}/user-service
+      - name: Build and Package Maven for API-Gateway
+        working-directory: ${{ github.workspace }}/API-Gateway
         run: mvn clean package
 
       - name: Verify the Target Directory Exists
         run: |
-          if [ -d "${{ github.workspace }}/user-service/target" ]; then
+          if [ -d "${{ github.workspace }}/API-Gateway/target" ]; then
             echo "Target directory exists."
           else
             echo "Target directory does not exist."
@@ -50,10 +50,10 @@ jobs:
           fi
 
       - name: List Contents of Target Directory
-        run: ls -al ${{ github.workspace }}/user-service/target
+        run: ls -al ${{ github.workspace }}/API-Gateway/target
 
       - name: Upload Artifact to S3
-        working-directory: ${{ github.workspace }}/user-service/target
+        working-directory: ${{ github.workspace }}/API-Gateway/target
         run: |
           if ls *.jar 1> /dev/null 2>&1; then
             aws s3 cp *.jar s3://${{ env.S3BUCKET }}/
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: build-file
-          path: ${{ github.workspace }}/user-service/target/*.jar
+          path: ${{ github.workspace }}/API-Gateway/target/*.jar
 
   codescan:
     needs: build
